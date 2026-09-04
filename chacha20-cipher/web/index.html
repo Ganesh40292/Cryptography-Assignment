@@ -3,179 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Interactive ChaCha20 Stream Cipher Studio & RFC 8439 Visualizer for Cryptography and Network Security">
+    <meta name="description" content="Interactive ChaCha20 Stream Cipher Studio & RFC 8439 Visualizer for Cryptography and Network Security (BCS703)">
     <title>ChaCha20 Stream Cipher Studio | RFC 8439 Visualizer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Header Section -->
-    <header class="app-header">
-        <div class="brand">
-            <div class="brand-icon">⚡</div>
-            <div class="brand-text">
-                <h1>ChaCha20 Stream Cipher Studio</h1>
-                <p>BCS703: Cryptography & Network Security | RFC 8439 Interactive Visualizer</p>
-            </div>
-        </div>
-        <div class="header-badges">
-            <span class="badge badge-rfc">IETF RFC 8439</span>
-            <span class="badge badge-status"><span class="badge-dot"></span> 256-bit Secure</span>
-        </div>
-    </header>
+    <!-- Ambient background layers (purely decorative, pointer-events: none) -->
+    <div class="bg-layer" aria-hidden="true"></div>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-    <!-- Quick Presets Toolbar -->
-    <section class="preset-bar">
-        <span class="preset-title">Test Vectors & Presets:</span>
-        <button id="preset-rfc-sunscreen" class="btn-preset" title="Official RFC 8439 Section 2.4.2 Sunscreen Vector">🌟 RFC 8439 Sunscreen (Sec 2.4.2)</button>
-        <button id="preset-rfc-block" class="btn-preset" title="Official RFC 8439 Section 2.3.2 Block Function Vector">📦 RFC 8439 Block Test (Sec 2.3.2)</button>
-        <button id="preset-demo" class="btn-preset" title="Assignment Demo">🎓 Assignment Demo</button>
-        <button id="preset-clear" class="btn-preset" title="Clear All Fields">🧹 Clear</button>
-    </section>
+    <!-- Neon cursor layer (pointer-events: none, never blocks interaction) -->
+    <div id="neon-cursor" class="neon-cursor" aria-hidden="true">
+        <div class="neon-cursor-inner"></div>
+    </div>
+    <div id="neon-cursor-dot" class="neon-cursor-dot" aria-hidden="true"></div>
 
-    <!-- Main Studio Grid -->
-    <main class="main-container">
+    <div class="page">
 
-        <!-- Left Column: Cipher Inputs & Controls -->
-        <section class="glass-panel">
-            <div class="panel-title">
-                <div class="panel-title-text">
-                    <span>🎛️</span>
-                    <span>Cipher Parameters</span>
+        <!-- ============================= HEADER ============================= -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2 L20 5.5 V11 C20 16.5 16.6 20.6 12 22 C7.4 20.6 4 16.5 4 11 V5.5 Z"/>
+                        <circle cx="12" cy="10" r="2.6"/>
+                        <path d="M12 12.6 V16"/>
+                    </svg>
                 </div>
-                <div class="tab-group">
-                    <button id="tab-encrypt" class="tab-btn active">Encrypt</button>
-                    <button id="tab-decrypt" class="tab-btn">Decrypt</button>
+                <div class="brand-text">
+                    <h1>ChaCha20 <span>Stream Cipher Studio</span></h1>
+                    <p>BCS703 · Cryptography &amp; Network Security — Interactive RFC 8439 Visualizer</p>
                 </div>
             </div>
+            <div class="header-badges">
+                <span class="badge badge-rfc">RFC 8439</span>
+                <span class="badge badge-key">256-BIT SECURE</span>
+                <span class="badge badge-online"><span class="badge-dot" aria-hidden="true"></span> SYSTEM ONLINE</span>
+            </div>
+        </header>
 
-            <!-- Key Parameter -->
-            <div class="form-group">
-                <div class="label-row">
-                    <span>256-Bit Secret Key (32 Bytes / 64 Hex Chars)</span>
-                    <div class="label-tools">
-                        <button id="btn-random-key" class="tool-btn" type="button">🎲 Random Key</button>
+        <!-- ========================== PRESETS BAR ========================== -->
+        <section class="preset-bar" aria-label="Test vectors and presets">
+            <span class="preset-title">Test vectors &amp; presets</span>
+            <button id="preset-rfc-sunscreen" class="btn-preset" type="button" title="Official RFC 8439 §2.4.2 encryption test vector">§2.4.2 Sunscreen</button>
+            <button id="preset-rfc-block" class="btn-preset" type="button" title="Official RFC 8439 §2.3.2 block-function test vector">§2.3.2 Block Test</button>
+            <button id="preset-demo" class="btn-preset" type="button" title="Assignment demo message">Assignment Demo</button>
+            <button id="preset-clear" class="btn-preset" type="button" title="Clear all fields">Clear</button>
+        </section>
+
+        <!-- =========================== MAIN GRID =========================== -->
+        <main class="main-container">
+
+            <!-- ------------ Panel 1 : Cipher Parameters ---------------- -->
+            <section class="glass-panel" aria-labelledby="panel-params-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">▣</span>
+                        <span id="panel-params-title">Cipher Parameters</span>
+                    </div>
+                    <div class="tab-group" role="tablist" aria-label="Operation mode">
+                        <button id="tab-encrypt" class="tab-btn active" role="tab" aria-selected="true" type="button">Encrypt</button>
+                        <button id="tab-decrypt" class="tab-btn" role="tab" aria-selected="false" type="button">Decrypt</button>
                     </div>
                 </div>
-                <input id="input-key" type="text" class="input-field" placeholder="64 hexadecimal characters (e.g. 0001020304...)" spellcheck="false" autocomplete="off">
-            </div>
 
-            <!-- Nonce & Counter Row -->
-            <div class="param-grid">
+                <!-- Secret Key -->
                 <div class="form-group">
                     <div class="label-row">
-                        <span>96-Bit Nonce (12 Bytes)</span>
-                        <button id="btn-random-nonce" class="tool-btn" type="button">🎲 Random Nonce</button>
+                        <span class="field-title">
+                            <span class="field-glyph" aria-hidden="true">⚿</span>
+                            <span>Secret Key</span>
+                            <span class="size-chip">256-BIT · 32 BYTES</span>
+                        </span>
+                        <button id="btn-random-key" class="tool-btn" type="button" title="Generate a cryptographically random 256-bit key">⟳ Random Key</button>
                     </div>
-                    <input id="input-nonce" type="text" class="input-field" placeholder="24 hex characters" spellcheck="false" autocomplete="off">
+                    <div class="field-shell">
+                        <input id="input-key" type="text" class="input-field" placeholder="64 hex characters — e.g. 00010203…1f" spellcheck="false" autocomplete="off"
+                               aria-label="256-bit secret key in hexadecimal" title="Exactly 64 hexadecimal characters (256 bits).">
+                        <span class="field-state" aria-hidden="true"></span>
+                    </div>
+                    <p id="msg-key" class="field-msg" role="status"></p>
                 </div>
 
+                <!-- Nonce + Counter -->
+                <div class="param-grid">
+                    <div class="form-group">
+                        <div class="label-row">
+                            <span class="field-title">
+                                <span class="field-glyph" aria-hidden="true">◈</span>
+                                <span>Nonce</span>
+                                <span class="size-chip">96-BIT · 12 BYTES</span>
+                            </span>
+                            <button id="btn-random-nonce" class="tool-btn" type="button" title="Generate a cryptographically random 96-bit nonce">⟳ Random Nonce</button>
+                        </div>
+                        <div class="field-shell">
+                            <input id="input-nonce" type="text" class="input-field" placeholder="24 hex characters" spellcheck="false" autocomplete="off"
+                                   aria-label="96-bit nonce in hexadecimal" title="Exactly 24 hexadecimal characters (96 bits). Never reuse a (key, nonce) pair.">
+                            <span class="field-state" aria-hidden="true"></span>
+                        </div>
+                        <p id="msg-nonce" class="field-msg" role="status"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="label-row">
+                            <span class="field-title">
+                                <span class="field-glyph" aria-hidden="true">#</span>
+                                <span>Block Counter</span>
+                                <span class="size-chip">32-BIT</span>
+                            </span>
+                            <span class="helper-text" title="Initial 32-bit block counter — typically 1 in RFC 8439">usually 1</span>
+                        </div>
+                        <div class="field-shell">
+                            <input id="input-counter" type="number" class="input-field" value="1" min="0" max="4294967295" step="1"
+                                   aria-label="Initial 32-bit block counter" title="Initial counter value in [0, 4294967295]. IETF usage starts at 1.">
+                            <span class="field-state" aria-hidden="true"></span>
+                        </div>
+                        <p id="msg-counter" class="field-msg" role="status"></p>
+                    </div>
+                </div>
+
+                <!-- Data input -->
                 <div class="form-group">
                     <div class="label-row">
-                        <span>32-Bit Initial Counter</span>
-                        <span class="helper-text">Typically 1</span>
+                        <span class="field-title">
+                            <span class="field-glyph" aria-hidden="true">≣</span>
+                            <span id="input-label">Plaintext</span>
+                            <span class="size-chip" id="mode-chip">UTF-8 / ASCII</span>
+                        </span>
+                        <span id="mode-badge" class="badge badge-enc">ENCRYPT</span>
                     </div>
-                    <input id="input-counter" type="number" class="input-field" value="1" min="0" max="4294967295">
+                    <div class="field-shell">
+                        <textarea id="input-text" class="input-field input-area" placeholder="Enter plaintext message…" spellcheck="false"
+                                  aria-label="Message to encrypt (plaintext) or ciphertext in hex to decrypt" title="Encrypt: plaintext UTF-8 text. Decrypt: hexadecimal ciphertext."></textarea>
+                    </div>
+                    <p id="msg-text" class="field-msg" role="status"></p>
                 </div>
-            </div>
 
-            <!-- Data Input -->
-            <div class="form-group">
-                <div class="label-row">
-                    <span id="input-label">Plaintext (UTF-8 / ASCII)</span>
-                    <span id="mode-badge" class="badge badge-rfc" style="font-size: 0.7rem; padding: 2px 8px;">Encryption Mode</span>
+                <button id="btn-execute" class="btn-execute" type="button">
+                    <span class="btn-execute-icon" aria-hidden="true">⚡</span>
+                    <span id="btn-execute-label">Execute ChaCha20</span>
+                </button>
+            </section>
+
+            <!-- ------------ Panel 2 : Transformation Result --------------- -->
+            <section class="glass-panel" aria-labelledby="panel-result-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">⌁</span>
+                        <span id="panel-result-title">Transformation Result</span>
+                    </div>
+                    <div class="output-actions">
+                        <button id="btn-copy-hex" class="copy-btn" type="button" title="Copy the raw output stream as continuous hexadecimal">COPY HEX</button>
+                        <button id="btn-copy-base64" class="copy-btn" type="button" title="Copy the output bytes Base64-encoded">COPY BASE64</button>
+                    </div>
                 </div>
-                <textarea id="input-text" class="input-field" placeholder="Enter plaintext message..." spellcheck="false"></textarea>
-            </div>
 
-            <button id="btn-execute" class="btn-primary" type="button">
-                <span>🔒 Encrypt Plaintext</span>
-            </button>
-        </section>
-
-        <!-- Right Column: Output & Statistics -->
-        <section class="glass-panel">
-            <div class="panel-title">
-                <div class="panel-title-text">
-                    <span>📊</span>
-                    <span>Transformation Result</span>
+                <!-- Live crypto status -->
+                <div id="status-card" class="status-card" role="status" aria-live="polite">
+                    <span id="status-indicator" class="status-indicator" aria-hidden="true"></span>
+                    <div class="status-text">
+                        <span id="status-title" class="status-title">READY</span>
+                        <span id="status-detail" class="status-detail">System ready</span>
+                    </div>
+                    <span id="status-chip" class="status-chip">IDLE</span>
                 </div>
-                <button id="btn-copy-output" class="copy-btn" type="button">📋 Copy Hex</button>
-            </div>
 
-            <!-- Stream Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div id="stat-bytes" class="stat-val">0</div>
-                    <div class="stat-lbl">Payload Bytes</div>
+                <!-- Payload statistics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div id="stat-bytes" class="stat-val">0</div>
+                        <div class="stat-lbl">Payload Bytes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-blocks" class="stat-val">0</div>
+                        <div class="stat-lbl">64-Byte Blocks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div id="stat-rounds" class="stat-val">0</div>
+                        <div class="stat-lbl">Total Rounds</div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div id="stat-blocks" class="stat-val">0</div>
-                    <div class="stat-lbl">64-Byte Blocks</div>
+
+                <!-- Verification banner -->
+                <div id="verify-banner" class="verify-banner" role="status" hidden>
+                    <span id="verify-icon" aria-hidden="true">✓</span>
+                    <span id="verify-text">Verification message</span>
                 </div>
-                <div class="stat-card">
-                    <div id="stat-rounds" class="stat-val">0</div>
-                    <div class="stat-lbl">Total Rounds</div>
+
+                <!-- Terminal output -->
+                <div class="terminal-box">
+                    <div class="terminal-head">
+                        <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span id="output-label" class="output-label">CIPHERTEXT STREAM · HEX</span>
+                        <span id="output-meta" class="output-meta">0 B</span>
+                    </div>
+                    <div id="output-result" class="terminal-body" aria-live="polite">
+                        <span class="placeholder">— awaiting valid input —</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Verification Banner -->
-            <div id="verify-banner" class="verify-banner verify-pass" style="display: none;">
-                <span>✅</span>
-                <span>Verification check message</span>
-            </div>
-
-            <!-- Primary Output (Hex) -->
-            <div class="output-box">
-                <div class="output-header">
-                    <span class="output-label">Ciphertext Stream (Hexadecimal)</span>
+                <!-- Secondary preview -->
+                <div class="terminal-box terminal-box-sub">
+                    <div class="terminal-head">
+                        <span class="terminal-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                        <span id="secondary-label" class="output-label">VERIFICATION PREVIEW</span>
+                    </div>
+                    <div id="output-secondary" class="terminal-body terminal-body-sub" aria-live="polite">
+                        <span class="placeholder">— awaiting valid input —</span>
+                    </div>
                 </div>
-                <div id="output-result" class="output-text">(waiting for input...)</div>
-            </div>
+            </section>
 
-            <!-- Secondary Output (Decrypted Verification / ASCII) -->
-            <div class="output-box">
-                <div class="output-header">
-                    <span id="secondary-label" class="output-label">Decrypted Verification Preview</span>
+            <!-- ------------ Panel 3 : State Matrix Visualizer ------------- -->
+            <section class="glass-panel state-matrix-card" aria-labelledby="panel-matrix-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">◫</span>
+                        <span id="panel-matrix-title">512-Bit Internal State Visualizer</span>
+                        <span class="size-chip">16 × 32-BIT WORDS</span>
+                    </div>
+                    <span id="visualizer-block" class="block-tag">KEYSTREAM BLOCK 1</span>
                 </div>
-                <div id="output-secondary" class="output-text">(waiting for input...)</div>
-            </div>
-        </section>
 
-        <!-- Full Width: 512-bit State Matrix Visualizer & 20-Round Stepper -->
-        <section class="glass-panel state-matrix-card">
-            <div class="panel-title">
-                <div class="panel-title-text">
-                    <span>🔬</span>
-                    <span>512-Bit Internal State Matrix Visualizer (4×4 Grid of 32-Bit Words)</span>
+                <!-- Round toolbar -->
+                <div class="matrix-toolbar">
+                    <div class="round-readout">
+                        <span id="round-readout" class="round-readout-text">ROUND 00 / 20</span>
+                        <span id="round-sub" class="round-sub">Initial state — constants · key · counter · nonce</span>
+                    </div>
+                    <div class="round-progress" role="progressbar" aria-valuemin="0" aria-valuemax="20" aria-valuenow="0" aria-label="Round progress">
+                        <div id="round-progress" class="round-progress-fill"></div>
+                        <span id="round-progress-label" class="round-progress-label">0 / 20</span>
+                    </div>
+                    <div class="round-stepper">
+                        <button id="btn-step-prev" class="stepper-btn" type="button" disabled title="Previous state">◀ Prev</button>
+                        <button id="btn-step-play" class="stepper-btn stepper-btn-play" type="button" disabled title="Play the 20 rounds">▶ Play</button>
+                        <button id="btn-step-next" class="stepper-btn" type="button" title="Next state">Next ▶</button>
+                    </div>
                 </div>
-                <!-- Stepper Controls -->
-                <div class="round-stepper">
-                    <button id="btn-step-prev" class="stepper-btn" type="button" disabled>◀ Prev</button>
-                    <span id="stepper-info" class="stepper-info">Initial State</span>
-                    <button id="btn-step-next" class="stepper-btn" type="button">Next ▶</button>
-                    <button id="btn-step-play" class="stepper-btn" type="button" style="margin-left: 8px;">▶ Play</button>
+
+                <div class="legend-row" aria-hidden="true">
+                    <span><i class="lg lg-constant"></i>Constant</span>
+                    <span><i class="lg lg-key"></i>Key</span>
+                    <span><i class="lg lg-counter"></i>Counter</span>
+                    <span><i class="lg lg-nonce"></i>Nonce</span>
+                    <span class="legend-note">values = real RFC 8439 computation · snapshot per round</span>
                 </div>
-            </div>
 
-            <p style="font-size: 0.85rem; color: var(--text-secondary);">
-                Visual representation of the 16 state words arranged in column and diagonal order. The cipher executes 10 double rounds (20 rounds) using Quarter Rounds on these words.
-            </p>
+                <div id="matrix-grid" class="matrix-grid" aria-label="ChaCha20 4 by 4 state matrix">
+                    <!-- 16 cells rendered by app.js -->
+                </div>
 
-            <div id="matrix-grid" class="matrix-grid">
-                <!-- Dynamically generated 16 matrix cells -->
-            </div>
-        </section>
+                <p id="step-explanation" class="step-explanation">
+                    Execute an operation to load the real 512-bit state into the visualizer.
+                </p>
+            </section>
 
-    </main>
+            <!-- ------------ Panel 4a : ARX / Quarter-Round ---------------- -->
+            <section class="glass-panel edu-card" aria-labelledby="panel-arx-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">⊕</span>
+                        <span id="panel-arx-title">ARX Design — The Quarter Round</span>
+                    </div>
+                    <span class="size-chip">RFC 8439 §2.1</span>
+                </div>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-        <p>ChaCha20 Stream Cipher Web Studio • Implemented according to <strong>RFC 8439</strong> • 7th Sem BCS703 Cryptography and Network Security Assignment</p>
-    </footer>
+                <div class="arx-badges" aria-label="ARX stands for">
+                    <span class="arx-badge arx-add">ADD <small>a + b mod 2³²</small></span>
+                    <span class="arx-badge arx-xor">XOR <small>d ⊕ a</small></span>
+                    <span class="arx-badge arx-rot">ROTATE <small>⟲ 16 · 12 · 8 · 7</small></span>
+                    <span class="arx-badge arx-eq">= ARX</span>
+                </div>
+
+                <p class="edu-intro">
+                    Each quarter round transforms four 32-bit words with three constant-time operations only —
+                    no tables, no branches — which is what makes ChaCha20 fast and cache-timing resistant.
+                </p>
+
+                <ol class="qr-list">
+                    <li><code>a += b</code><em>— word a absorbs b (addition mod 2³²)</em></li>
+                    <li><code>d ^= a</code> · <code>d &lt;&lt;&lt;= 16</code><em>— d mixes with a, then rotates left 16</em></li>
+                    <li><code>c += d</code><em>— word c absorbs d</em></li>
+                    <li><code>b ^= c</code> · <code>b &lt;&lt;&lt;= 12</code><em>— b mixes with c, rotates left 12</em></li>
+                    <li><code>a += b</code><em>— word a absorbs b again</em></li>
+                    <li><code>d ^= a</code> · <code>d &lt;&lt;&lt;= 8</code><em>— d mixes with a, rotates left 8</em></li>
+                    <li><code>c += d</code><em>— word c absorbs d again</em></li>
+                    <li><code>b ^= c</code> · <code>b &lt;&lt;&lt;= 7</code><em>— b mixes with c, rotates left 7</em></li>
+                </ol>
+
+                <div class="qr-groups">
+                    <div>
+                        <span class="qr-group-title">Column round</span>
+                        <code>QR(0,4,8,12)</code> <code>QR(1,5,9,13)</code>
+                        <code>QR(2,6,10,14)</code> <code>QR(3,7,11,15)</code>
+                    </div>
+                    <div>
+                        <span class="qr-group-title">Diagonal round</span>
+                        <code>QR(0,5,10,15)</code> <code>QR(1,6,11,12)</code>
+                        <code>QR(2,7,8,13)</code> <code>QR(3,4,9,14)</code>
+                    </div>
+                    <p class="legend-note">10 column rounds + 10 diagonal rounds = 20 rounds · 80 quarter-round calls per 64-byte block</p>
+                </div>
+            </section>
+
+            <!-- ------------ Panel 4b : RFC 8439 Verification -------------- -->
+            <section class="glass-panel edu-card" aria-labelledby="panel-rfc-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">✓</span>
+                        <span id="panel-rfc-title">RFC 8439 Verification</span>
+                    </div>
+                    <span class="size-chip">LIVE IN-BROWSER</span>
+                </div>
+
+                <p class="edu-intro">
+                    Checks below are executed in this page against the official normative test vectors —
+                    nothing is hard-coded as “pass”, every result comes from a live computation.
+                </p>
+
+                <ul id="rfc-checks" class="rfc-checks">
+                    <li id="rfc-block"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Block-function keystream vector · §2.3.2</span><span class="rfc-result">checking…</span></li>
+                    <li id="rfc-enc"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Encryption vector · §2.4.2 “sunscreen”</span><span class="rfc-result">checking…</span></li>
+                    <li id="rfc-roundtrip"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Decryption / round-trip symmetry</span><span class="rfc-result">checking…</span></li>
+                    <li id="rfc-junit"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Java JUnit 5 suite · 15 test cases</span><span class="rfc-result">checking…</span></li>
+                </ul>
+                <p class="legend-note">Java suite results documented in <code>test-results/TEST-RESULTS.md</code> (15/15, RFC vectors included).</p>
+            </section>
+
+            <!-- ------------ Panel 5 : How ChaCha20 Works ------------------ -->
+            <section class="glass-panel flow-card" aria-labelledby="panel-flow-title">
+                <div class="panel-title">
+                    <div class="panel-title-text">
+                        <span class="panel-icon" aria-hidden="true">⇣</span>
+                        <span id="panel-flow-title">How ChaCha20 Works — Encryption Pipeline</span>
+                    </div>
+                    <span class="size-chip">STREAM CIPHER · XOR SYMMETRIC</span>
+                </div>
+
+                <ol class="cipher-flow">
+                    <li><span class="flow-node">256-BIT KEY</span><p>A 32-byte secret shared by sender &amp; receiver; this studio generates it or accepts 64 hex characters.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">INITIAL STATE</span><p>16-word matrix: constants <code>“expand 32-byte k”</code>, 8 key words, block counter, 3-word nonce.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">20 ROUNDS</span><p>10 double rounds — each applies 4 column quarter-rounds then 4 diagonal quarter-rounds to the state.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">ARX OPERATIONS</span><p>Only addition mod 2³², XOR and fixed left rotations (16, 12, 8, 7) — see the quarter-round panel.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">FEED-FORWARD</span><p>The permuted state is added to the original state (mod 2³²) so the round function is invertible.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">KEYSTREAM</span><p>The 16 output words are serialized little-endian into a 64-byte pseudo-random keystream block.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">XOR</span><p>Keystream ⊕ plaintext: <code>C = P ⊕ K</code>. Because XOR is self-inverting, decryption uses the identical keystream.</p></li>
+                    <li class="flow-arrow" aria-hidden="true">↓</li>
+                    <li><span class="flow-node">CIPHERTEXT</span><p>Same length as the plaintext; messages &gt; 64 bytes simply advance the block counter per block.</p></li>
+                </ol>
+            </section>
+
+        </main>
+
+        <!-- ============================ FOOTER ============================ -->
+        <footer class="app-footer">
+            <p>ChaCha20 Stream Cipher Studio · implemented from <strong>RFC 8439</strong> with zero crypto libraries · BCS703 — Cryptography &amp; Network Security, 7th Semester</p>
+        </footer>
+
+    </div>
 
     <!-- Scripts -->
     <script src="chacha20.js"></script>
