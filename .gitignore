@@ -1,0 +1,19 @@
+# Maven build outputs
+target/
+*.class
+*.jar
+
+# Node.js dependencies & Vite build
+node_modules/
+dist/
+.vite/
+
+# NetBeans & IDE files
+nbproject/private/
+build/
+nbbuild/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
