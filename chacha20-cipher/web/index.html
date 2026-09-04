@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive ChaCha20 Stream Cipher Studio & RFC 8439 Visualizer for Cryptography and Network Security">
+    <title>ChaCha20 Stream Cipher Studio | RFC 8439 Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon">⚡</div>
+            <div class="brand-text">
+                <h1>ChaCha20 Stream Cipher Studio</h1>
+                <p>BCS703: Cryptography & Network Security | RFC 8439 Interactive Visualizer</p>
+            </div>
+        </div>
+        <div class="header-badges">
+            <span class="badge badge-rfc">IETF RFC 8439</span>
+            <span class="badge badge-status"><span class="badge-dot"></span> 256-bit Secure</span>
+        </div>
+    </header>
+
+    <!-- Quick Presets Toolbar -->
+    <section class="preset-bar">
+        <span class="preset-title">Test Vectors & Presets:</span>
+        <button id="preset-rfc-sunscreen" class="btn-preset" title="Official RFC 8439 Section 2.4.2 Sunscreen Vector">🌟 RFC 8439 Sunscreen (Sec 2.4.2)</button>
+        <button id="preset-rfc-block" class="btn-preset" title="Official RFC 8439 Section 2.3.2 Block Function Vector">📦 RFC 8439 Block Test (Sec 2.3.2)</button>
+        <button id="preset-demo" class="btn-preset" title="Assignment Demo">🎓 Assignment Demo</button>
+        <button id="preset-clear" class="btn-preset" title="Clear All Fields">🧹 Clear</button>
+    </section>
+
+    <!-- Main Studio Grid -->
+    <main class="main-container">
+
+        <!-- Left Column: Cipher Inputs & Controls -->
+        <section class="glass-panel">
+            <div class="panel-title">
+                <div class="panel-title-text">
+                    <span>🎛️</span>
+                    <span>Cipher Parameters</span>
+                </div>
+                <div class="tab-group">
+                    <button id="tab-encrypt" class="tab-btn active">Encrypt</button>
+                    <button id="tab-decrypt" class="tab-btn">Decrypt</button>
+                </div>
+            </div>
+
+            <!-- Key Parameter -->
+            <div class="form-group">
+                <div class="label-row">
+                    <span>256-Bit Secret Key (32 Bytes / 64 Hex Chars)</span>
+                    <div class="label-tools">
+                        <button id="btn-random-key" class="tool-btn" type="button">🎲 Random Key</button>
+                    </div>
+                </div>
+                <input id="input-key" type="text" class="input-field" placeholder="64 hexadecimal characters (e.g. 0001020304...)" spellcheck="false" autocomplete="off">
+            </div>
+
+            <!-- Nonce & Counter Row -->
+            <div class="param-grid">
+                <div class="form-group">
+                    <div class="label-row">
+                        <span>96-Bit Nonce (12 Bytes)</span>
+                        <button id="btn-random-nonce" class="tool-btn" type="button">🎲 Random Nonce</button>
+                    </div>
+                    <input id="input-nonce" type="text" class="input-field" placeholder="24 hex characters" spellcheck="false" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <div class="label-row">
+                        <span>32-Bit Initial Counter</span>
+                        <span class="helper-text">Typically 1</span>
+                    </div>
+                    <input id="input-counter" type="number" class="input-field" value="1" min="0" max="4294967295">
+                </div>
+            </div>
+
+            <!-- Data Input -->
+            <div class="form-group">
+                <div class="label-row">
+                    <span id="input-label">Plaintext (UTF-8 / ASCII)</span>
+                    <span id="mode-badge" class="badge badge-rfc" style="font-size: 0.7rem; padding: 2px 8px;">Encryption Mode</span>
+                </div>
+                <textarea id="input-text" class="input-field" placeholder="Enter plaintext message..." spellcheck="false"></textarea>
+            </div>
+
+            <button id="btn-execute" class="btn-primary" type="button">
+                <span>🔒 Encrypt Plaintext</span>
+            </button>
+        </section>
+
+        <!-- Right Column: Output & Statistics -->
+        <section class="glass-panel">
+            <div class="panel-title">
+                <div class="panel-title-text">
+                    <span>📊</span>
+                    <span>Transformation Result</span>
+                </div>
+                <button id="btn-copy-output" class="copy-btn" type="button">📋 Copy Hex</button>
+            </div>
+
+            <!-- Stream Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div id="stat-bytes" class="stat-val">0</div>
+                    <div class="stat-lbl">Payload Bytes</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-blocks" class="stat-val">0</div>
+                    <div class="stat-lbl">64-Byte Blocks</div>
+                </div>
+                <div class="stat-card">
+                    <div id="stat-rounds" class="stat-val">0</div>
+                    <div class="stat-lbl">Total Rounds</div>
+                </div>
+            </div>
+
+            <!-- Verification Banner -->
+            <div id="verify-banner" class="verify-banner verify-pass" style="display: none;">
+                <span>✅</span>
+                <span>Verification check message</span>
+            </div>
+
+            <!-- Primary Output (Hex) -->
+            <div class="output-box">
+                <div class="output-header">
+                    <span class="output-label">Ciphertext Stream (Hexadecimal)</span>
+                </div>
+                <div id="output-result" class="output-text">(waiting for input...)</div>
+            </div>
+
+            <!-- Secondary Output (Decrypted Verification / ASCII) -->
+            <div class="output-box">
+                <div class="output-header">
+                    <span id="secondary-label" class="output-label">Decrypted Verification Preview</span>
+                </div>
+                <div id="output-secondary" class="output-text">(waiting for input...)</div>
+            </div>
+        </section>
+
+        <!-- Full Width: 512-bit State Matrix Visualizer & 20-Round Stepper -->
+        <section class="glass-panel state-matrix-card">
+            <div class="panel-title">
+                <div class="panel-title-text">
+                    <span>🔬</span>
+                    <span>512-Bit Internal State Matrix Visualizer (4×4 Grid of 32-Bit Words)</span>
+                </div>
+                <!-- Stepper Controls -->
+                <div class="round-stepper">
+                    <button id="btn-step-prev" class="stepper-btn" type="button" disabled>◀ Prev</button>
+                    <span id="stepper-info" class="stepper-info">Initial State</span>
+                    <button id="btn-step-next" class="stepper-btn" type="button">Next ▶</button>
+                    <button id="btn-step-play" class="stepper-btn" type="button" style="margin-left: 8px;">▶ Play</button>
+                </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                Visual representation of the 16 state words arranged in column and diagonal order. The cipher executes 10 double rounds (20 rounds) using Quarter Rounds on these words.
+            </p>
+
+            <div id="matrix-grid" class="matrix-grid">
+                <!-- Dynamically generated 16 matrix cells -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <p>ChaCha20 Stream Cipher Web Studio • Implemented according to <strong>RFC 8439</strong> • 7th Sem BCS703 Cryptography and Network Security Assignment</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="chacha20.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

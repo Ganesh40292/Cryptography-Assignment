@@ -1,0 +1,15 @@
+{
+  "name": "chacha20-cipher",
+  "version": "1.0.0",
+  "description": "ChaCha20 Stream Cipher Studio & RFC 8439 Visualizer",
+  "private": true,
+  "scripts": {
+    "dev": "vite ./web --open",
+    "build": "vite build ./web",
+    "preview": "vite preview ./web",
+    "start": "vite ./web --open"
+  },
+  "devDependencies": {
+    "vite": "^5.4.2"
+  }
+}
