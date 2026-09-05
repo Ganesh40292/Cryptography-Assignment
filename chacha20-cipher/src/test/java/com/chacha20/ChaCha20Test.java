@@ -229,39 +229,183 @@ public class ChaCha20Test {
     }
 
     @Test
-    @DisplayName("TEST 13: Input Validation - Invalid Key Length Rejection")
+    @DisplayName("TEST 13: Input Validation - Invalid Key Lengths Rejection")
     void testInvalidKeyRejection() {
-        byte[] invalidKey = new byte[16]; // 16 bytes instead of 32
-        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(invalidKey));
-        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(null));
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(null), "Null key rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(new byte[0]), "0-byte key rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(new byte[1]), "1-byte key rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(new byte[16]), "16-byte key rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(new byte[31]), "31-byte key rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateKey(new byte[33]), "33-byte key rejected");
+        assertDoesNotThrow(() -> InputValidator.validateKey(new byte[32]), "32-byte key must be accepted");
         System.out.println("[PASS] TEST 13: Invalid Key Length Rejection");
     }
 
     @Test
-    @DisplayName("TEST 14: Input Validation - Invalid Nonce Length Rejection")
+    @DisplayName("TEST 14: Input Validation - Invalid Nonce Lengths Rejection")
     void testInvalidNonceRejection() {
-        byte[] invalidNonce = new byte[8]; // 8 bytes instead of 12
-        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(invalidNonce));
-        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(null));
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(null), "Null nonce rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(new byte[0]), "0-byte nonce rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(new byte[8]), "8-byte nonce rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(new byte[11]), "11-byte nonce rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateNonce(new byte[13]), "13-byte nonce rejected");
+        assertDoesNotThrow(() -> InputValidator.validateNonce(new byte[12]), "12-byte nonce must be accepted");
         System.out.println("[PASS] TEST 14: Invalid Nonce Length Rejection");
     }
 
     @Test
-    @DisplayName("TEST 15: HexUtils Utility Functions")
+    @DisplayName("TEST 15: HexUtils Utility Functions and Edge Cases")
     void testHexUtils() {
-        byte[] raw = new byte[]{0x00, (byte) 0xff, 0x12, 0x34};
-        String hex = HexUtils.bytesToHex(raw);
-        assertEquals("00ff1234", hex);
+        // Empty string
+        byte[] empty = HexUtils.hexToBytes("");
+        assertEquals(0, empty.length);
+        assertEquals("", HexUtils.bytesToHex(new byte[0]));
 
-        byte[] parsed = HexUtils.hexToBytes("00ff1234");
-        assertArrayEquals(raw, parsed);
+        // Uppercase, lowercase, mixed case
+        byte[] raw = new byte[]{0x00, (byte) 0xff, 0x12, 0x34, (byte) 0xab};
+        assertArrayEquals(raw, HexUtils.hexToBytes("00ff1234ab"));
+        assertArrayEquals(raw, HexUtils.hexToBytes("00FF1234AB"));
+        assertArrayEquals(raw, HexUtils.hexToBytes("00Ff1234aB"));
 
-        // Test with delimiters
-        byte[] parsedSpaced = HexUtils.hexToBytes("00 ff 12 34");
-        assertArrayEquals(raw, parsedSpaced);
+        // Delimiters / spaces
+        assertArrayEquals(raw, HexUtils.hexToBytes("00 ff 12 34 ab"));
+        assertArrayEquals(raw, HexUtils.hexToBytes("00:ff:12:34:ab"));
 
-        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("123")); // odd length
-        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("12zz")); // invalid chars
-        System.out.println("[PASS] TEST 15: HexUtils Utility Functions");
+        // Odd length rejection
+        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("123"));
+        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("a"));
+
+        // Invalid characters rejection
+        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("12zz"));
+        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes("00gg"));
+        assertThrows(IllegalArgumentException.class, () -> HexUtils.hexToBytes(null));
+
+        System.out.println("[PASS] TEST 15: HexUtils Utility Functions and Edge Cases");
+    }
+
+    @Test
+    @DisplayName("TEST 16: Configurable Rounds (ChaCha8 & ChaCha12 Round-Trip)")
+    void testConfigurableRounds() {
+        byte[] key = new byte[32];
+        byte[] nonce = new byte[12];
+        byte[] plaintext = "Testing reduced round variants: ChaCha8 & ChaCha12".getBytes(StandardCharsets.UTF_8);
+
+        // ChaCha8
+        byte[] cipher8 = ChaCha20.encrypt(key, 1, nonce, plaintext, 8);
+        byte[] dec8 = ChaCha20.decrypt(key, 1, nonce, cipher8, 8);
+        assertArrayEquals(plaintext, dec8, "ChaCha8 must decrypt back to original plaintext.");
+
+        // ChaCha12
+        byte[] cipher12 = ChaCha20.encrypt(key, 1, nonce, plaintext, 12);
+        byte[] dec12 = ChaCha20.decrypt(key, 1, nonce, cipher12, 12);
+        assertArrayEquals(plaintext, dec12, "ChaCha12 must decrypt back to original plaintext.");
+
+        // ChaCha8, ChaCha12, and ChaCha20 produce distinct ciphertexts
+        byte[] cipher20 = ChaCha20.encrypt(key, 1, nonce, plaintext, 20);
+        assertFalse(java.util.Arrays.equals(cipher8, cipher12));
+        assertFalse(java.util.Arrays.equals(cipher12, cipher20));
+        System.out.println("[PASS] TEST 16: Configurable Rounds (ChaCha8 & ChaCha12)");
+    }
+
+    @Test
+    @DisplayName("TEST 17: Unicode, Multilingual UTF-8, Indian Script & Emoji Round-Trip")
+    void testUnicodeAndMultilingualPayloads() {
+        String complexText = "Hello नमस्ते 🔐! Cryptography Assignment 1: ChaCha20 বাংলা தமிழ் 🚀 $#@% 1234567890";
+        byte[] plaintext = complexText.getBytes(StandardCharsets.UTF_8);
+
+        byte[] key = new byte[32];
+        byte[] nonce = new byte[12];
+        for (int i = 0; i < 32; i++) key[i] = (byte) (i + 5);
+        for (int i = 0; i < 12; i++) nonce[i] = (byte) (i + 1);
+
+        byte[] ciphertext = ChaCha20.encrypt(key, 1, nonce, plaintext);
+        assertFalse(Arrays.equals(plaintext, ciphertext));
+
+        byte[] decrypted = ChaCha20.decrypt(key, 1, nonce, ciphertext);
+        assertArrayEquals(plaintext, decrypted);
+        assertEquals(complexText, new String(decrypted, StandardCharsets.UTF_8),
+                "Decrypted UTF-8 multilingual text must match original exactly.");
+        System.out.println("[PASS] TEST 17: Unicode, Multilingual UTF-8 & Emoji Round-Trip");
+    }
+
+    @Test
+    @DisplayName("TEST 18: Educational Demonstration - Raw ChaCha20 Tampering Lack of Authentication")
+    void testRawChaCha20TamperingDemonstration() {
+        // Educational test verifying that raw ChaCha20 stream cipher does NOT authenticate data.
+        // A single-bit alteration in the ciphertext propagates directly into the decrypted plaintext
+        // without raising an error. This demonstrates the necessity of ChaCha20-Poly1305 AEAD.
+        byte[] key = new byte[32];
+        byte[] nonce = new byte[12];
+        String original = "Transfer $1000 to Alice";
+        byte[] plaintext = original.getBytes(StandardCharsets.UTF_8);
+
+        byte[] ciphertext = ChaCha20.encrypt(key, 1, nonce, plaintext);
+
+        // Tamper with ciphertext by flipping 1 bit
+        byte[] tamperedCiphertext = ciphertext.clone();
+        tamperedCiphertext[10] ^= 0x01;
+
+        // Raw ChaCha20 decrypts without error, yielding altered plaintext
+        byte[] decrypted = ChaCha20.decrypt(key, 1, nonce, tamperedCiphertext);
+        assertFalse(Arrays.equals(plaintext, decrypted), "Decrypted plaintext is altered");
+        assertNotEquals(original, new String(decrypted, StandardCharsets.UTF_8));
+        System.out.println("[PASS] TEST 18: Educational Demo - Raw ChaCha20 Tampering");
+    }
+
+    @Test
+    @DisplayName("TEST 19: Counter Validation and Boundary Checks")
+    void testCounterValidation() {
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateCounter(-1),
+                "Negative counter must be rejected");
+        assertThrows(IllegalArgumentException.class, () -> InputValidator.validateCounter(0x100000000L),
+                "Counter exceeding 32-bit unsigned range must be rejected");
+
+        assertDoesNotThrow(() -> InputValidator.validateCounter(0), "Counter 0 is valid");
+        assertDoesNotThrow(() -> InputValidator.validateCounter(1), "Counter 1 is valid");
+        assertDoesNotThrow(() -> InputValidator.validateCounter(0xFFFFFFFFL), "Counter 0xFFFFFFFF is valid");
+        System.out.println("[PASS] TEST 19: Counter Validation");
+    }
+
+    @Test
+    @DisplayName("TEST 20: AvalancheAnalyzer Parameter Index Validation & Bounds Checking")
+    void testAvalancheAnalyzerParameterValidation() {
+        byte[] key = new byte[32];
+        byte[] nonce = new byte[12];
+
+        // Valid execution
+        assertDoesNotThrow(() -> AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, 0, 0));
+        assertDoesNotThrow(() -> AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, 31, 7));
+        assertDoesNotThrow(() -> AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.NONCE, 11, 7));
+        assertDoesNotThrow(() -> AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.COUNTER, 0, 31));
+
+        // Invalid Key byte index (< 0 or > 31)
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, -1, 0));
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, 32, 0));
+
+        // Invalid Nonce byte index (< 0 or > 11)
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.NONCE, -1, 0));
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.NONCE, 12, 0));
+
+        // Invalid bit index for Key / Nonce (< 0 or > 7)
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, 0, -1));
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.KEY, 0, 8));
+
+        // Invalid bit index for Counter (< 0 or > 31)
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.COUNTER, 0, -1));
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, AvalancheAnalyzer.PerturbationTarget.COUNTER, 0, 32));
+
+        // Null target
+        assertThrows(IllegalArgumentException.class, () ->
+                AvalancheAnalyzer.analyze(key, 1, nonce, null, 0, 0));
+
+        System.out.println("[PASS] TEST 20: AvalancheAnalyzer Parameter Index Validation");
     }
 }

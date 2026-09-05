@@ -1,19 +1,131 @@
-# Maven build outputs
+# ==============================================================================
+# Git Ignore Configuration - ChaCha20 CipherForge
+# Covers Maven/Java, Node.js/Vite, IDEs, Operating Systems, Logs & Temp Files
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Maven & Java Build Outputs
+# ------------------------------------------------------------------------------
 target/
+**/target/
 *.class
+**/*.class
 *.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
-# Node.js dependencies & Vite build
+# ------------------------------------------------------------------------------
+# 2. Node.js & Vite / Frontend Build Outputs
+# ------------------------------------------------------------------------------
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 .vite/
+**/.vite/
+.parcel-cache/
+.cache/
+**/.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# NetBeans & IDE files
-nbproject/private/
-build/
-nbbuild/
+# ------------------------------------------------------------------------------
+# 3. IntelliJ IDEA
+# ------------------------------------------------------------------------------
 .idea/
+**/.idea/
 *.iml
+**/*.iml
+*.iws
+*.ipr
+out/
+**/out/
+
+# ------------------------------------------------------------------------------
+# 4. Visual Studio Code
+# ------------------------------------------------------------------------------
 .vscode/
+**/.vscode/
+*.code-workspace
+
+# ------------------------------------------------------------------------------
+# 5. NetBeans
+# ------------------------------------------------------------------------------
+nbproject/private/
+**/nbproject/private/
+build/
+**/build/
+nbbuild/
+**/nbbuild/
+nbdist/
+**/nbdist/
+.nb-gradle/
+**/.nb-gradle/
+
+# ------------------------------------------------------------------------------
+# 6. Eclipse
+# ------------------------------------------------------------------------------
+.settings/
+**/.settings/
+.project
+**/.project
+.classpath
+**/.classpath
+
+# ------------------------------------------------------------------------------
+# 7. Operating System Generated Files
+# ------------------------------------------------------------------------------
+# macOS
 .DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
 Thumbs.db
+**/Thumbs.db
+ehthumbs.db
+**/ehthumbs.db
+desktop.ini
+**/desktop.ini
+$RECYCLE.BIN/
+
+# Linux / Editor swap & backup files
+*~
+*.swp
+*.swo
+*.tmp
+*.temp
+*.bak
+
+# ------------------------------------------------------------------------------
+# 8. Logs, Test Coverage & Runtime Artifacts
+# ------------------------------------------------------------------------------
+*.log
+logs/
+**/logs/
+.nyc_output/
+coverage/
+**/coverage/
+.surefire-*
+
+# ------------------------------------------------------------------------------
+# 9. Environment & Local Configuration
+# ------------------------------------------------------------------------------
+.env
+.env.local
+.env.*.local

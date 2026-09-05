@@ -4,10 +4,10 @@
   "description": "ChaCha20 Stream Cipher Studio & RFC 8439 Visualizer",
   "private": true,
   "scripts": {
-    "dev": "vite ./web --open",
+    "dev": "vite ./web --port 5180 --strictPort --open",
     "build": "vite build ./web",
-    "preview": "vite preview ./web",
-    "start": "vite ./web --open"
+    "preview": "vite preview ./web --port 5180",
+    "start": "vite ./web --port 5180 --strictPort --open"
   },
   "devDependencies": {
     "vite": "^5.4.2"

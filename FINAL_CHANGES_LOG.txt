@@ -1,0 +1,197 @@
+============================================================
+FINAL CHANGES LOG
+BCS703 CRYPTOGRAPHY ASSIGNMENT
+============================================================
+
+Date:
+2026-09-04
+
+Purpose:
+Final controlled bug-fix, hardening, verification and submission-readiness pass.
+
+------------------------------------------------------------
+FILE: Main.java
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Replaced partial RFC Block Function prefix verification with complete output comparison.
+2. Replaced partial RFC ChaCha20 encryption prefix verification with complete ciphertext comparison.
+3. Updated AEAD verification to check both complete ciphertext and authentication tag.
+4. Updated RFC verification output/reporting to clearly display individual statuses for all 6 checks:
+   - Quarter Round (§2.1.1)
+   - Block Function (§2.3.2)
+   - ChaCha20 Encrypt (§2.4.2)
+   - Poly1305 Authenticator (§2.5.2)
+   - AEAD Ciphertext (§2.8.2)
+   - AEAD Authentication Tag (§2.8.2)
+   along with an overall status requiring 100% full equality across all checks.
+
+TESTING:
+- RFC Quarter Round: PASS
+- RFC Block Function: PASS
+- RFC ChaCha20 Encryption: PASS
+- RFC Poly1305 Authenticator: PASS
+- RFC AEAD Ciphertext: PASS
+- RFC AEAD Tag: PASS
+
+------------------------------------------------------------
+FILE: FileCipher.java
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Added same-filesystem-object protection using Files.isSameFile() when output file exists.
+2. Preserved existing canonical-path collision protection.
+3. Updated Javadoc regarding ChaCha20 file-size limits to accurately specify operation within the available 32-bit block-counter space rather than unrestricted arbitrary size.
+
+TESTING:
+- Same path rejection: PASS
+- Equivalent path handling: PASS
+- Existing output file collision check via Files.isSameFile: PASS
+- Normal file encryption/decryption: PASS
+
+------------------------------------------------------------
+FILE: AvalancheAnalyzer.java
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Added explicit validation for key byte indexes (0..31).
+2. Added explicit validation for nonce byte indexes (0..11).
+3. Added explicit validation for bit indexes (0..7 for key/nonce, 0..31 for counter).
+4. Prevented silent modulo wrapping of invalid indexes by throwing descriptive IllegalArgumentException.
+
+TESTING:
+- Valid indexes: PASS
+- Invalid key byte index (-1, 32): PASS/REJECTED as expected
+- Invalid nonce byte index (-1, 12): PASS/REJECTED as expected
+- Invalid bit index (-1, 8, 32): PASS/REJECTED as expected
+- Multi-trial analysis: PASS
+
+------------------------------------------------------------
+FILE: web/chacha20.js
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Strengthened hexadecimal input validation in CryptoUtils.hexToBytes.
+2. Added strict regex validation rejecting malformed characters before conversion.
+3. Added rejection of odd-length byte strings.
+4. Preserved valid hex parsing behavior (lowercase, uppercase, spaces, delimiters).
+5. Preserved existing ChaCha20 functionality and RFC vector matching.
+
+TESTING:
+- Valid lowercase hex: PASS
+- Valid uppercase hex: PASS
+- Valid spaced hex: PASS
+- Empty string: PASS
+- Invalid character rejection ("12g4", "zz", "0g", "gh"): PASS/REJECTED as expected
+- Odd-length rejection ("1", "123"): PASS/REJECTED as expected
+- RFC ChaCha20 output: PASS
+
+------------------------------------------------------------
+FILE: README.md
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Updated automated JUnit 5 test suite count to 36 tests (20 in ChaCha20Test).
+2. Refined descriptions to reflect comprehensive parameter bounds validation in AvalancheAnalyzer.
+
+------------------------------------------------------------
+FILE: chacha20-cipher/README.md
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Updated file encryption description to state processing within available ChaCha20 32-bit block-counter space with same-path and Files.isSameFile collision protection.
+2. Updated documented test suite count in Project Structure and Testing Summary to 36 tests (20 in ChaCha20Test).
+3. Updated RFC verification section to explicitly describe complete equality checks for block function, encryption, and AEAD.
+
+------------------------------------------------------------
+FILE: test-results/TEST-RESULTS.md
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Added test TC-20 (AvalancheAnalyzer Parameter Index Validation) covering bounds checking and exception handling.
+2. Re-numbered test cases TC-20 through TC-36.
+3. Updated Maven Surefire test run logs reflecting 36 tests executed and passing with 0 failures, 0 errors, and 0 skipped.
+
+------------------------------------------------------------
+FILE: web/index.html
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Updated RFC test suite badge label to "JUnit 5 Suite (36 Tests)".
+
+------------------------------------------------------------
+FILE: web/app.js
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Updated JAVA_TEST_SUITE_METRICS single source of truth constant to totalTests: 36, passed: 36.
+
+------------------------------------------------------------
+FILE: src/test/java/com/chacha20/ChaCha20Test.java
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Added TEST 20: testAvalancheAnalyzerParameterValidation() to test and verify bounds checking and IllegalArgumentException behavior for invalid key/nonce/counter byte and bit indices.
+
+------------------------------------------------------------
+FILE: src/test/java/com/chacha20/FileCipherTest.java
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Enhanced TC-F02 (testSameInputOutputFileRejection) to additionally test existing target file collision checking.
+
+------------------------------------------------------------
+FILE: scratch/test_js_rfc.js
+------------------------------------------------------------
+
+CHANGES MADE:
+1. Removed temporary scratch script from the project directory.
+
+============================================================
+FINAL VERIFICATION
+============================================================
+
+Final Java test count:
+36
+
+Passed:
+36
+
+Failed:
+0
+
+Errors:
+0
+
+Skipped:
+0
+
+RFC verification:
+- Quarter Round: PASS
+- Block Function: PASS
+- ChaCha20 Encryption: PASS
+- Poly1305: PASS
+- AEAD Ciphertext: PASS
+- AEAD Tag: PASS
+
+File tests:
+- All required boundary tests: PASS
+- Large binary file: PASS
+- Same-file protection: PASS
+
+Avalanche tests:
+- Valid analysis: PASS
+- Invalid index rejection: PASS
+- Multi-trial analysis: PASS
+
+Web application:
+- Build: PASS
+- Load: PASS
+- Console errors: 0 errors
+- Hex validation: PASS
+- ChaCha20 output: PASS
+- Visualizer: PASS
+
+Final status:
+READY
+============================================================

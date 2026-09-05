@@ -8,6 +8,11 @@ target/
 *.tar.gz
 *.rar
 
+# Node / Vite Web Artifacts
+node_modules/
+dist/
+.vite/
+
 # NetBeans specific
 nbproject/private/
 build/

@@ -99,4 +99,20 @@ public final class InputValidator {
         }
         return true;
     }
+
+    /**
+     * Validates the 128-bit (16-byte) Poly1305 authentication tag.
+     *
+     * @param tag the tag byte array
+     * @throws IllegalArgumentException if tag is null or not exactly 16 bytes
+     */
+    public static void validateTag(byte[] tag) {
+        if (tag == null) {
+            throw new IllegalArgumentException("Authentication tag cannot be null.");
+        }
+        if (tag.length != 16) {
+            throw new IllegalArgumentException(String.format(
+                    "Invalid tag length: %d bytes. Poly1305 requires exactly 16 bytes (128 bits).", tag.length));
+        }
+    }
 }

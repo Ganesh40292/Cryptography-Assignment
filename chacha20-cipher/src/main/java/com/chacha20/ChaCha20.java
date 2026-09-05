@@ -171,13 +171,18 @@ public class ChaCha20 {
     }
 
     /**
-     * Executes the 20 rounds of the ChaCha20 permutation on the state (RFC 8439 Section 2.3).
-     * Consists of 10 double rounds (each containing 4 column rounds and 4 diagonal rounds).
+     * Executes a specified number of rounds of the ChaCha permutation on the state.
+     * Rounds must be an even integer (e.g. 8 for ChaCha8, 12 for ChaCha12, 20 for ChaCha20).
      *
      * @param state the 16-word state array to permute in place
+     * @param rounds total number of rounds (e.g., 8, 12, 20)
      */
-    public static void applyRounds(int[] state) {
-        for (int i = 0; i < 10; i++) {
+    public static void applyRounds(int[] state, int rounds) {
+        if (rounds <= 0 || rounds % 2 != 0) {
+            throw new IllegalArgumentException("Rounds must be a positive even integer (e.g., 8, 12, 20).");
+        }
+        int doubleRounds = rounds / 2;
+        for (int i = 0; i < doubleRounds; i++) {
             // Column Round (4 quarter rounds)
             quarterRound(state, 0, 4, 8, 12);
             quarterRound(state, 1, 5, 9, 13);
@@ -193,7 +198,55 @@ public class ChaCha20 {
     }
 
     /**
-     * Computes the ChaCha20 block function (RFC 8439 Section 2.3).
+     * Executes the standard 20 rounds of the ChaCha20 permutation on the state (RFC 8439 Section 2.3).
+     * Consists of 10 double rounds (each containing 4 column rounds and 4 diagonal rounds).
+     *
+     * @param state the 16-word state array to permute in place
+     */
+    public static void applyRounds(int[] state) {
+        applyRounds(state, NUM_ROUNDS);
+    }
+
+    /**
+     * Applies a single round (either column or diagonal) to the working state.
+     * Round index is 1-based (odd = column round, even = diagonal round).
+     *
+     * @param state 16-word state array
+     * @param roundNumber 1-based round index (1..20)
+     */
+    public static void applySingleRound(int[] state, int roundNumber) {
+        if (roundNumber % 2 == 1) {
+            // Column Round
+            quarterRound(state, 0, 4, 8, 12);
+            quarterRound(state, 1, 5, 9, 13);
+            quarterRound(state, 2, 6, 10, 14);
+            quarterRound(state, 3, 7, 11, 15);
+        } else {
+            // Diagonal Round
+            quarterRound(state, 0, 5, 10, 15);
+            quarterRound(state, 1, 6, 11, 12);
+            quarterRound(state, 2, 7, 8, 13);
+            quarterRound(state, 3, 4, 9, 14);
+        }
+    }
+
+    /**
+     * Computes the ChaCha block function with configurable rounds.
+     * Generates a 64-byte keystream block from key, counter, and nonce.
+     *
+     * @param key 256-bit key (32 bytes)
+     * @param counter 32-bit block counter
+     * @param nonce 96-bit nonce (12 bytes)
+     * @param rounds number of rounds (e.g., 8, 12, 20)
+     * @return 64-byte keystream block
+     */
+    public static byte[] chachaBlock(byte[] key, int counter, byte[] nonce, int rounds) {
+        int[] initialState = createInitialState(key, counter, nonce);
+        return chachaBlockFromState(initialState, rounds);
+    }
+
+    /**
+     * Computes the standard ChaCha20 block function (RFC 8439 Section 2.3).
      * Generates a 64-byte keystream block from key, counter, and nonce.
      *
      * @param key 256-bit key (32 bytes)
@@ -202,17 +255,17 @@ public class ChaCha20 {
      * @return 64-byte keystream block
      */
     public static byte[] chachaBlock(byte[] key, int counter, byte[] nonce) {
-        int[] initialState = createInitialState(key, counter, nonce);
-        return chachaBlockFromState(initialState);
+        return chachaBlock(key, counter, nonce, NUM_ROUNDS);
     }
 
     /**
-     * Computes the 64-byte keystream block from an initialized 16-word state.
+     * Computes the 64-byte keystream block from an initialized 16-word state with configurable rounds.
      *
      * @param initialState 16-word initial state
+     * @param rounds number of rounds (e.g. 8, 12, 20)
      * @return 64-byte keystream block
      */
-    public static byte[] chachaBlockFromState(int[] initialState) {
+    public static byte[] chachaBlockFromState(int[] initialState, int rounds) {
         if (initialState == null || initialState.length != STATE_SIZE_WORDS) {
             throw new IllegalArgumentException("Initial state must contain exactly 16 words.");
         }
@@ -220,8 +273,8 @@ public class ChaCha20 {
         // Copy initial state to working state
         int[] workingState = Arrays.copyOf(initialState, STATE_SIZE_WORDS);
 
-        // Apply 20 rounds (10 double rounds)
-        applyRounds(workingState);
+        // Apply rounds
+        applyRounds(workingState, rounds);
 
         // Add the original state back to the working state (addition modulo 2^32)
         int[] outputState = new int[STATE_SIZE_WORDS];
@@ -239,18 +292,26 @@ public class ChaCha20 {
     }
 
     /**
-     * Encrypts the plaintext using ChaCha20 stream cipher with specified key, counter, and nonce.
+     * Computes the 64-byte keystream block from an initialized 16-word state using 20 rounds.
      *
-     * <p>The plaintext is partitioned into 64-byte blocks. For each block, the counter is incremented,
-     * a 64-byte keystream block is generated, and the bytes are XORed together.
+     * @param initialState 16-word initial state
+     * @return 64-byte keystream block
+     */
+    public static byte[] chachaBlockFromState(int[] initialState) {
+        return chachaBlockFromState(initialState, NUM_ROUNDS);
+    }
+
+    /**
+     * Encrypts the plaintext using ChaCha stream cipher with specified key, counter, nonce, and round count.
      *
      * @param key 256-bit key (32 bytes)
-     * @param counter initial 32-bit block counter (typically 1 for IETF / RFC 8439 AEAD)
+     * @param counter initial 32-bit block counter
      * @param nonce 96-bit nonce (12 bytes)
      * @param plaintext plaintext byte array of arbitrary length
-     * @return ciphertext byte array of identical length to plaintext
+     * @param rounds number of permutation rounds (e.g., 8, 12, 20)
+     * @return ciphertext byte array
      */
-    public static byte[] encrypt(byte[] key, int counter, byte[] nonce, byte[] plaintext) {
+    public static byte[] encrypt(byte[] key, int counter, byte[] nonce, byte[] plaintext, int rounds) {
         InputValidator.validateKey(key);
         InputValidator.validateNonce(nonce);
         InputValidator.validateData(plaintext);
@@ -263,9 +324,8 @@ public class ChaCha20 {
         int numBlocks = (plaintext.length + BLOCK_SIZE_BYTES - 1) / BLOCK_SIZE_BYTES;
 
         for (int blockIndex = 0; blockIndex < numBlocks; blockIndex++) {
-            // Increment the counter for each subsequent 64-byte block
             int currentCounter = counter + blockIndex;
-            byte[] keystreamBlock = chachaBlock(key, currentCounter, nonce);
+            byte[] keystreamBlock = chachaBlock(key, currentCounter, nonce, rounds);
 
             int offset = blockIndex * BLOCK_SIZE_BYTES;
             int bytesToProcess = Math.min(BLOCK_SIZE_BYTES, plaintext.length - offset);
@@ -279,6 +339,19 @@ public class ChaCha20 {
     }
 
     /**
+     * Encrypts the plaintext using standard 20-round ChaCha20 stream cipher.
+     *
+     * @param key 256-bit key (32 bytes)
+     * @param counter initial 32-bit block counter
+     * @param nonce 96-bit nonce (12 bytes)
+     * @param plaintext plaintext byte array
+     * @return ciphertext byte array
+     */
+    public static byte[] encrypt(byte[] key, int counter, byte[] nonce, byte[] plaintext) {
+        return encrypt(key, counter, nonce, plaintext, NUM_ROUNDS);
+    }
+
+    /**
      * Overloaded encryption method with default initial counter = 1.
      *
      * @param key 256-bit key (32 bytes)
@@ -287,12 +360,25 @@ public class ChaCha20 {
      * @return ciphertext byte array
      */
     public static byte[] encrypt(byte[] key, byte[] nonce, byte[] plaintext) {
-        return encrypt(key, 1, nonce, plaintext);
+        return encrypt(key, 1, nonce, plaintext, NUM_ROUNDS);
+    }
+
+    /**
+     * Decrypts the ciphertext using ChaCha stream cipher with specified rounds.
+     *
+     * @param key 256-bit key (32 bytes)
+     * @param counter initial 32-bit block counter
+     * @param nonce 96-bit nonce (12 bytes)
+     * @param ciphertext ciphertext byte array
+     * @param rounds number of rounds (e.g., 8, 12, 20)
+     * @return decrypted plaintext byte array
+     */
+    public static byte[] decrypt(byte[] key, int counter, byte[] nonce, byte[] ciphertext, int rounds) {
+        return encrypt(key, counter, nonce, ciphertext, rounds);
     }
 
     /**
      * Decrypts the ciphertext using ChaCha20 stream cipher with specified key, counter, and nonce.
-     * Since ChaCha20 is a symmetric stream cipher using XOR, decryption is identical to encryption.
      *
      * @param key 256-bit key (32 bytes)
      * @param counter initial 32-bit block counter
@@ -301,8 +387,7 @@ public class ChaCha20 {
      * @return decrypted plaintext byte array
      */
     public static byte[] decrypt(byte[] key, int counter, byte[] nonce, byte[] ciphertext) {
-        // Stream cipher XOR encryption is completely symmetric
-        return encrypt(key, counter, nonce, ciphertext);
+        return encrypt(key, counter, nonce, ciphertext, NUM_ROUNDS);
     }
 
     /**
@@ -314,6 +399,6 @@ public class ChaCha20 {
      * @return decrypted plaintext byte array
      */
     public static byte[] decrypt(byte[] key, byte[] nonce, byte[] ciphertext) {
-        return decrypt(key, 1, nonce, ciphertext);
+        return decrypt(key, 1, nonce, ciphertext, NUM_ROUNDS);
     }
 }

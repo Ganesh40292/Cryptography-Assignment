@@ -107,4 +107,48 @@ public final class HexUtils {
         }
         return sb.toString();
     }
+
+    /**
+     * Formats a byte array as a 16-bytes-per-line hexadecimal dump with ASCII preview.
+     *
+     * @param bytes source bytes
+     * @return formatted hex dump string
+     */
+    public static String formatHexDump(byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i += 16) {
+            sb.append(String.format("  %04x: ", i));
+            int lineLen = Math.min(16, bytes.length - i);
+            for (int j = 0; j < 16; j++) {
+                if (j < lineLen) {
+                    sb.append(String.format("%02x ", bytes[i + j]));
+                } else {
+                    sb.append("   ");
+                }
+                if (j == 7) sb.append(" ");
+            }
+            sb.append(" |");
+            for (int j = 0; j < lineLen; j++) {
+                byte b = bytes[i + j];
+                char c = (b >= 32 && b <= 126) ? (char) b : '.';
+                sb.append(c);
+            }
+            sb.append("|\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Securely clears sensitive cryptographic material from memory.
+     *
+     * @param bytes byte array to wipe
+     */
+    public static void zeroize(byte[] bytes) {
+        if (bytes != null) {
+            java.util.Arrays.fill(bytes, (byte) 0);
+        }
+    }
 }

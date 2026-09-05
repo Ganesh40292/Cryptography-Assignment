@@ -1,6 +1,14 @@
 /**
- * RFC 8439 ChaCha20 Cryptographic Engine (Pure JavaScript)
- * Standard: IETF RFC 8439
+ * RFC 8439 ChaCha20 Educational Engine (Client-side JavaScript)
+ * Standard: IETF RFC 8439 (Sections 2.1 - 2.4)
+ *
+ * ARCHITECTURAL NOTICE:
+ * This client-side implementation powers the interactive educational visualizer (in-browser
+ * round-by-round state matrix inspection, quarter-round ARX animations, and keystream generation).
+ * It executes purely within the browser and strictly mirrors the algorithmic semantics of
+ * the Java core implementation (com.chacha20.ChaCha20), matching all RFC 8439 test vectors.
+ * The comprehensive Java implementation additionally provides CLI, Poly1305, ChaCha20-Poly1305
+ * AEAD authenticated encryption, streaming FileCipher, Avalanche analysis, and Benchmarking.
  */
 class ChaCha20Engine {
     static CONSTANTS = [0x61707865, 0x3320646e, 0x79622d32, 0x6b206574]; // "expand 32-byte k"
@@ -233,12 +241,25 @@ const CryptoUtils = {
     },
 
     hexToBytes(hex) {
+        if (typeof hex !== 'string') {
+            throw new Error('Hex input must be a string');
+        }
         let clean = hex.replace(/[\s:-]/g, '');
-        if (clean.length % 2 !== 0) throw new Error('Hex string length must be even');
+        if (clean.length === 0) {
+            return new Uint8Array(0);
+        }
+        if (clean.length % 2 !== 0) {
+            throw new Error('Hex string length must be even');
+        }
+        if (!/^[0-9a-fA-F]+$/.test(clean)) {
+            throw new Error('Hex string contains invalid hexadecimal characters');
+        }
         let bytes = new Uint8Array(clean.length / 2);
         for (let i = 0; i < clean.length; i += 2) {
             let byte = parseInt(clean.substring(i, i + 2), 16);
-            if (isNaN(byte)) throw new Error(`Invalid hex character at index ${i}`);
+            if (isNaN(byte)) {
+                throw new Error(`Invalid hex character at index ${i}`);
+            }
             bytes[i / 2] = byte;
         }
         return bytes;
@@ -270,3 +291,10 @@ const CryptoUtils = {
         return lines.join('\n');
     }
 };
+
+// Expose globally for vanilla browser scripts and export for ES module bundlers
+if (typeof window !== 'undefined') {
+    window.ChaCha20Engine = ChaCha20Engine;
+    window.CryptoUtils = CryptoUtils;
+}
+export { ChaCha20Engine, CryptoUtils };
