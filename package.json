@@ -1,0 +1,22 @@
+{
+  "name": "chacha20-cipherforge-workspace",
+  "version": "1.0.0",
+  "description": "ChaCha20 CipherForge — Interactive ARX Cryptographic Engine & RFC 8439 Studio",
+  "private": true,
+  "scripts": {
+    "install:web": "npm --prefix chacha20-cipher/web install",
+    "build": "npm --prefix chacha20-cipher/web install && npm --prefix chacha20-cipher/web run build",
+    "dev": "npm --prefix chacha20-cipher/web run dev",
+    "preview": "npm --prefix chacha20-cipher/web run preview",
+    "test:java": "mvn -f chacha20-cipher/pom.xml test"
+  },
+  "keywords": [
+    "chacha20",
+    "rfc-8439",
+    "cryptography",
+    "threejs",
+    "security"
+  ],
+  "author": "Ganesh Prasad",
+  "license": "MIT"
+}
