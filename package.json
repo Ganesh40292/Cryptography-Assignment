@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "install:web": "npm --prefix chacha20-cipher/web install",
-    "build": "npm --prefix chacha20-cipher/web install && npm --prefix chacha20-cipher/web run build",
+    "build": "npm --prefix chacha20-cipher/web install && npm --prefix chacha20-cipher/web run build && node -e \"require('fs').cpSync('chacha20-cipher/web/dist', 'chacha20-cipher/dist', {recursive: true}); require('fs').cpSync('chacha20-cipher/web/dist', 'dist', {recursive: true});\"",
     "dev": "npm --prefix chacha20-cipher/web run dev",
     "preview": "npm --prefix chacha20-cipher/web run preview",
     "test:java": "mvn -f chacha20-cipher/pom.xml test"

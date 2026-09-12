@@ -5,9 +5,13 @@
   "private": true,
   "scripts": {
     "dev": "vite ./web --port 5180 --strictPort --open",
-    "build": "vite build ./web",
+    "build": "vite build ./web && node -e \"require('fs').cpSync('web/dist', 'dist', {recursive: true})\"",
     "preview": "vite preview ./web --port 5180",
     "start": "vite ./web --port 5180 --strictPort --open"
+  },
+  "dependencies": {
+    "gsap": "^3.15.0",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "vite": "^5.4.2"
