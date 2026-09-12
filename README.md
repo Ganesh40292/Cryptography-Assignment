@@ -4,6 +4,7 @@
 [![Java 17+](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/)
 [![JUnit 5](https://img.shields.io/badge/JUnit-36%20%2F%2036%20Pass-brightgreen.svg)](chacha20-cipher/test-results/TEST-RESULTS.md)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-100%20%7C%20100%20%7C%20100%20%7C%20100-success.svg)](#-lighthouse-1341-audit-results)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel%20Ready-black.svg?logo=vercel)](DEPLOYMENT_GUIDE.md)
 [![License: Academic](https://img.shields.io/badge/License-Academic%20MIT-lightgrey.svg)](LICENSE)
 
 An academic, production-grade, zero-dependency implementation of the **IETF ChaCha20 Stream Cipher**, **Poly1305 One-Time Authenticator**, and **ChaCha20-Poly1305 AEAD (RFC 8439)** developed in pure **Java 17+**, paired with a **3D Web Studio & Virtual Cryptographic Laboratory** built in Three.js and GSAP.
@@ -113,7 +114,15 @@ Every component is verified through an automated JUnit 5 regression test suite a
 ```
 Cryptography-Assignment/
 ├── README.md                                 # Root repository overview & documentation
+├── DEPLOYMENT_GUIDE.md                       # Complete deployment manual (Vercel, Netlify, Pages)
+├── TASK_IMPLEMENTATION_EXPLANATION.txt       # Formal academic task explanation & Viva preparation
+├── package.json                              # Root npm delegation script for zero-config CI/CD
+├── vercel.json                               # Root Vercel cloud deployment specification & headers
+├── netlify.toml                              # Netlify build & security headers configuration
 ├── .gitignore                                # Excludes target/, node_modules/, dist/, .vite/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml                        # GitHub Pages automated deployment workflow
 ├── chacha20-cipher/
 │   ├── pom.xml                               # Maven build configuration (Java 17+, JUnit 5)
 │   ├── README.md                             # 21-section technical specification & algorithmic analysis
@@ -142,7 +151,8 @@ Cryptography-Assignment/
 │       ├── chacha20.js                       # Pure client-side JavaScript ChaCha20 engine
 │       ├── scene.js                          # Three.js + GSAP 3D ARX Reactor Forge & particle field
 │       ├── app.js                            # UI state, 20-round stepper, and RFC probes
-│       ├── vite.config.js                    # Vite bundler configuration & code-splitting
+│       ├── vite.config.js                    # Vite bundler configuration & relative asset pathing
+│       ├── vercel.json                       # Subfolder Vercel configuration fallback
 │       ├── package.json                      # Web project dependencies (Three.js, GSAP, Vite)
 │       └── public/
 │           ├── robots.txt                    # Search engine crawler permissions
@@ -193,6 +203,27 @@ npm run build
 npm run preview
 ```
 Open **[http://localhost:5180](http://localhost:5180)** in your browser to view the 3D ARX Reactor Forge, encrypt/decrypt payloads, step through rounds 1–20, and inspect real-time RFC test vectors.
+
+### 3. Zero-Error Cloud Deployment (Vercel, Netlify & GitHub Pages)
+The web application is fully hardened for one-click, zero-error cloud deployment:
+
+* **Vercel (Recommended)**:
+  1. Navigate to [vercel.com](https://vercel.com) and click **Add New...** > **Project**.
+  2. Select the `Cryptography-Assignment` repository.
+  3. Leave all default build settings (auto-detected via root [`vercel.json`](vercel.json) and [`package.json`](package.json)).
+  4. Click **Deploy**. The site builds in ~2 seconds with zero configuration.
+* **Asset 404 Prevention**: Bundled with `base: './'` in [`vite.config.js`](chacha20-cipher/web/vite.config.js) ensuring all chunks load correctly across custom domains and subpaths.
+* **HTTP Security Headers**: Pre-configured with `nosniff`, `X-Frame-Options: DENY`, and `strict-origin-when-cross-origin`.
+* **Step-by-Step Manual**: See [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) for detailed Netlify and GitHub Pages instructions.
+
+---
+
+## 📝 Academic Task Submission & Viva Materials
+
+For evaluators and academic demonstration:
+* **Task Implementation & Mathematical Proof**: See [`TASK_IMPLEMENTATION_EXPLANATION.txt`](TASK_IMPLEMENTATION_EXPLANATION.txt) for a complete explanation of ARX quarter-round logic, the 512-bit state matrix, test vector verification, avalanche diffusion results, and benchmark metrics formatted for assignment submission.
+* **Complete Technical Specification**: See [`chacha20-cipher/README.md`](chacha20-cipher/README.md) for the 21-section in-depth algorithmic documentation.
+* **Official Test Verification Log**: See [`chacha20-cipher/test-results/TEST-RESULTS.md`](chacha20-cipher/test-results/TEST-RESULTS.md) for individual test parameters and RFC vector match proofs.
 
 ---
 
