@@ -4,8 +4,18 @@
 [![Java 17+](https://img.shields.io/badge/Java-17%2B-orange.svg)](https://www.oracle.com/java/)
 [![JUnit 5](https://img.shields.io/badge/JUnit-36%20%2F%2036%20Pass-brightgreen.svg)](chacha20-cipher/test-results/TEST-RESULTS.md)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-100%20%7C%20100%20%7C%20100%20%7C%20100-success.svg)](#-lighthouse-1341-audit-results)
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel%20Ready-black.svg?logo=vercel)](DEPLOYMENT_GUIDE.md)
+[![Vercel](https://img.shields.io/badge/Deploy-Live%20on%20Vercel-success.svg?logo=vercel)](https://cryptography-assignment-phi.vercel.app/)
 [![License: Academic](https://img.shields.io/badge/License-Academic%20MIT-lightgrey.svg)](LICENSE)
+
+---
+
+## 🌐 Live Deployment & Interactive Studio
+
+🚀 **Live URL:** [https://cryptography-assignment-phi.vercel.app/](https://cryptography-assignment-phi.vercel.app/)
+
+Access the live, client-side 3D ChaCha20 virtual laboratory with interactive ARX state matrix visualization, 20-round stepper, and instant RFC 8439 verification without any local installation.
+
+---
 
 An academic, production-grade, zero-dependency implementation of the **IETF ChaCha20 Stream Cipher**, **Poly1305 One-Time Authenticator**, and **ChaCha20-Poly1305 AEAD (RFC 8439)** developed in pure **Java 17+**, paired with a **3D Web Studio & Virtual Cryptographic Laboratory** built in Three.js and GSAP.
 
