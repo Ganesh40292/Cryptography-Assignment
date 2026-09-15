@@ -819,15 +819,13 @@ function runRfcChecks() {
         const rtOk = hexOf(rtDec.outputBytes) === hexOf(rt);
         markRfcCheck('rfc-roundtrip', rtOk, rtOk ? 'PASS · XOR symmetric' : 'FAIL');
 
-        // Java JUnit suite — dynamically reflect single source-of-truth metrics
-        const junitLabel = document.getElementById('rfc-junit-label');
-        if (junitLabel) {
-            junitLabel.textContent = `JUnit 5 Suite (${JAVA_TEST_SUITE_METRICS.totalTests} Tests)`;
-        }
-        const allTestsPassed = (JAVA_TEST_SUITE_METRICS.passed === JAVA_TEST_SUITE_METRICS.totalTests) && (JAVA_TEST_SUITE_METRICS.failed === 0);
-        markRfcCheck('rfc-junit', allTestsPassed, `${JAVA_TEST_SUITE_METRICS.passed} / ${JAVA_TEST_SUITE_METRICS.totalTests} PASS`);
+        // §2.1.1 — Quarter-Round ARX test vector
+        const qrState = [0x11111111, 0x01020304, 0x77777777, 0x01234567];
+        ChaCha20Engine.quarterRound(qrState, 0, 1, 2, 3);
+        const qrPassed = (qrState[0] === 0xea2a92f4 && qrState[1] === 0xcb1cf8ce && qrState[2] === 0x4581472e && qrState[3] === 0x5881c4bb);
+        markRfcCheck('rfc-qr', qrPassed, qrPassed ? 'PASS · §2.1.1 ARX' : 'FAIL');
     } catch (err) {
-        ['rfc-block', 'rfc-enc', 'rfc-roundtrip'].forEach((id) => markRfcCheck(id, false, 'ERROR'));
+        ['rfc-block', 'rfc-enc', 'rfc-roundtrip', 'rfc-qr'].forEach((id) => markRfcCheck(id, false, 'ERROR'));
     }
 }
 

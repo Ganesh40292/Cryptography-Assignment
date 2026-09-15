@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Chacha 2.0 CipherForge — Interactive ARX Cryptographic Engine & RFC 8439 Visualizer">
-    <title>Chacha 2.0 CipherForge | ARX Cryptographic Engine</title>
+        content="ChaCha20 CipherForge — Interactive ARX Cryptographic Engine & RFC 8439 Visualizer">
+    <title>ChaCha20 CipherForge | ARX Cryptographic Engine</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="alternate icon" href="/favicon.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,15 +37,15 @@
             <div id="intro-seed" class="intro-seed" aria-hidden="true"></div>
             <div id="intro-badge" class="intro-badge">
                 <span class="intro-dot" aria-hidden="true"></span>
-                <span>ARX QUANTUM ENGINE · 512-BIT STATE REACTOR</span>
+                <span>ARX CRYPTOGRAPHIC ENGINE · 512-BIT INTERNAL STATE</span>
             </div>
-            <h1 id="intro-title" class="intro-title">CHACHA 2.0 <span>CIPHERFORGE</span></h1>
-            <p id="intro-sub" class="intro-sub">Next-Gen High-Speed Stream Cipher · 256-Bit Fortress Security</p>
+            <h1 id="intro-title" class="intro-title">CHACHA20 <span>CIPHERFORGE</span></h1>
+            <p id="intro-sub" class="intro-sub">ChaCha20 Stream Cipher · 256-Bit Key · 96-Bit Nonce · 20 Rounds</p>
             <div id="intro-status-stream" class="intro-status-stream" aria-hidden="true">
                 <span class="stream-tag">ARX PIPELINE:</span>
-                <span class="stream-code">⊞ ADD (mod 2³²) · ⋘ ROTATE · ⨁ XOR ┃ 20 ROUNDS ARMED</span>
+                <span class="stream-code">⊞ ADD (mod 2³²) · ⋘ ROTATE · ⨁ XOR ┃ 20 ROUNDS · 10 DOUBLE ROUNDS</span>
             </div>
-            <button id="btn-skip-intro" class="btn-skip-intro" type="button" aria-label="Enter Forge [ESC]">ENTER FORGE
+            <button id="btn-skip-intro" class="btn-skip-intro" type="button" aria-label="Start Lab [ESC]">START LAB
                 [ESC]</button>
         </div>
     </div>
@@ -70,7 +70,7 @@
                     </svg>
                 </div>
                 <div class="brand-text">
-                    <h1>Chacha 2.0 <span>CipherForge</span></h1>
+                    <h1>ChaCha20 <span>CipherForge</span></h1>
                     <p>Interactive ARX Cryptographic Engine</p>
                 </div>
             </div>
@@ -88,9 +88,9 @@
         <section class="preset-bar" aria-label="Presets">
             <span class="preset-title">Presets</span>
             <button id="preset-rfc-sunscreen" class="btn-preset" type="button"
-                title="RFC 8439 §2.4.2 Sunscreen">Sunscreen §2.4.2</button>
-            <button id="preset-rfc-block" class="btn-preset" type="button" title="RFC 8439 §2.3.2 Block Test">Block
-                §2.3.2</button>
+                title="RFC 8439 §2.4.2 Encryption Test">RFC 8439 Encryption Test</button>
+            <button id="preset-rfc-block" class="btn-preset" type="button"
+                title="RFC 8439 §2.3.2 Block Test">RFC 8439 Block Test</button>
             <button id="preset-demo" class="btn-preset" type="button" title="Demo Message">Demo</button>
             <button id="preset-clear" class="btn-preset" type="button" title="Clear Fields">Clear</button>
         </section>
@@ -342,25 +342,25 @@
                 </div>
             </section>
 
-            <!-- ------------ Panel 4b : RFC 8439 Verification -------------- -->
+            <!-- ------------ Panel 4b : Implementation Verification -------------- -->
             <section class="glass-panel edu-card" aria-labelledby="panel-rfc-title">
                 <div class="panel-title">
                     <div class="panel-title-text">
                         <span class="panel-icon" aria-hidden="true">✓</span>
-                        <span id="panel-rfc-title">RFC 8439 Verification</span>
+                        <span id="panel-rfc-title">Implementation Verification</span>
                     </div>
                     <span class="size-chip">LIVE</span>
                 </div>
 
                 <ul id="rfc-checks" class="rfc-checks">
                     <li id="rfc-block"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Block
-                            Function Keystream (§2.3.2)</span><span class="rfc-result">checking…</span></li>
-                    <li id="rfc-enc"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">Encryption
+                            Function Test (§2.3.2)</span><span class="rfc-result">checking…</span></li>
+                    <li id="rfc-enc"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name">RFC 8439 Test
                             Vector (§2.4.2)</span><span class="rfc-result">checking…</span></li>
                     <li id="rfc-roundtrip"><span class="rfc-mark" aria-hidden="true">…</span><span
-                            class="rfc-name">Decryption Symmetry</span><span class="rfc-result">checking…</span></li>
-                    <li id="rfc-junit"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name"
-                            id="rfc-junit-label">JUnit 5 Suite (36 Tests)</span><span
+                            class="rfc-name">Decryption Round-Trip Test</span><span class="rfc-result">checking…</span></li>
+                    <li id="rfc-qr"><span class="rfc-mark" aria-hidden="true">…</span><span class="rfc-name"
+                            id="rfc-qr-label">Quarter-Round ARX Test (§2.1.1)</span><span
                             class="rfc-result">checking…</span></li>
                 </ul>
             </section>
@@ -369,7 +369,7 @@
 
         <!-- ============================ FOOTER ============================ -->
         <footer class="app-footer">
-            <p>Chacha 2.0 CipherForge · RFC 8439 · BCS703 Cryptography &amp; Network Security</p>
+            <p>ChaCha20 CipherForge · RFC 8439 · BCS703 Cryptography &amp; Network Security</p>
         </footer>
 
     </div>

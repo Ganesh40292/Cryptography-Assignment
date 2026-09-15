@@ -50,7 +50,7 @@ This project consists of two complementary layers that together form a complete 
 │               (Backend / CLI)             │                (Frontend)                  │
 ├───────────────────────────────────────────┼────────────────────────────────────────────┤
 │ • Pure Java RFC 8439 Stream Cipher        │ • Pure JavaScript RFC 8439 Engine          │
-│ • Poly1305 128-bit MAC Authenticator      │ • 3D Holographic ARX Reactor Forge         │
+│ • Poly1305 128-bit MAC Authenticator      │ • 3D Holographic ARX State Visualizer      │
 │ • ChaCha20-Poly1305 AEAD Pipeline (§2.8)  │ • 20-Round Interactive Step-by-Step Debug  │
 │ • 64 KB Buffered Streaming File Cipher    │ • 4×4 512-Bit Matrix Live Permutation      │
 │ • Multi-Trial Avalanche Diffusion Analyzer│ • Live Bit-Exact RFC Test Vector Probes   │
@@ -61,11 +61,11 @@ This project consists of two complementary layers that together form a complete 
 
 ---
 
-## ⚡ 3D Holographic ARX Cryptographic Reactor Forge
+## ⚡ 3D Holographic ARX Cryptographic Engine & State Visualizer
 
 The web studio features a 3D entrance animation sequence that visualizes the internal mechanics of ChaCha20:
 
-1. **Automatic Initialization**: Triggers automatically on page load and refresh with seamless handover into the ambient background. Instant bypass available at any time via `[ESC]` or the `ENTER FORGE [ESC]` button.
+1. **Automatic Initialization**: Triggers automatically on page load and refresh with seamless handover into the ambient background. Instant bypass available at any time via `[ESC]` or the `START LAB [ESC]` button.
 2. **Concentric Counter-Rotating ARX Rings**:
    - Three glowing holographic Torus rings represent the fundamental operations of the quarter-round function:
      - **Addition [A]**: Outer Amber Gold ring (`#fbbf24`) rotating on the Z-axis.
@@ -80,11 +80,11 @@ The web studio features a 3D entrance animation sequence that visualizes the int
    - Expanding shockwave ring triggers as words lock into place.
    - Interconnecting cyan lattice lines illuminate all quarter-round column and diagonal dependencies.
    - 4×4 matrix tilts into a dynamic 3D isometric perspective.
-5. **Futuristic Command Typography**:
-   - Badge: `● ARX QUANTUM ENGINE · 512-BIT STATE REACTOR`
-   - Title: `CHACHA 2.0 CIPHERFORGE` with electric cyan-to-violet holographic gradient
-   - Subtitle: `Next-Gen High-Speed Stream Cipher · 256-Bit Fortress Security`
-   - Stream Pill: `ARX PIPELINE: ⊞ ADD (mod 2³²) · ⋘ ROTATE · ⨁ XOR ┃ 20 ROUNDS ARMED`
+5. **Accurate Cryptographic Typography**:
+   - Badge: `● ARX CRYPTOGRAPHIC ENGINE · 512-BIT INTERNAL STATE`
+   - Title: `CHACHA20 CIPHERFORGE` with electric cyan-to-violet holographic gradient
+   - Subtitle: `ChaCha20 Stream Cipher · 256-Bit Key · 96-Bit Nonce · 20 Rounds`
+   - Stream Pill: `ARX PIPELINE: ⊞ ADD (mod 2³²) · ⋘ ROTATE · ⨁ XOR ┃ 20 ROUNDS · 10 DOUBLE ROUNDS`
 6. **Ambient Interactive Space**:
    - After the entrance sequence, the matrix transitions into the deep-space particle backdrop behind the glass panels with subtle mouse parallax drift and floating hexadecimal glyphs.
    - Can be replayed at any time via the `↻ REPLAY 3D` button in the header.
@@ -159,7 +159,7 @@ Cryptography-Assignment/
 │       ├── index.html                        # Web Studio UI & semantic layout
 │       ├── style.css                         # Dark glassmorphism styling & animations
 │       ├── chacha20.js                       # Pure client-side JavaScript ChaCha20 engine
-│       ├── scene.js                          # Three.js + GSAP 3D ARX Reactor Forge & particle field
+│       ├── scene.js                          # Three.js + GSAP 3D ARX State Visualizer & particle field
 │       ├── app.js                            # UI state, 20-round stepper, and RFC probes
 │       ├── vite.config.js                    # Vite bundler configuration & relative asset pathing
 │       ├── vercel.json                       # Subfolder Vercel configuration fallback
@@ -212,7 +212,7 @@ npm run build
 # Preview production build locally
 npm run preview
 ```
-Open **[http://localhost:5180](http://localhost:5180)** in your browser to view the 3D ARX Reactor Forge, encrypt/decrypt payloads, step through rounds 1–20, and inspect real-time RFC test vectors.
+Open **[http://localhost:8439](http://localhost:8439)** in your browser to view the 3D ARX State Visualizer, encrypt/decrypt payloads, step through rounds 1–20, and inspect real-time RFC test vectors.
 
 ### 3. Zero-Error Cloud Deployment (Vercel, Netlify & GitHub Pages)
 The web application is fully hardened for one-click, zero-error cloud deployment:

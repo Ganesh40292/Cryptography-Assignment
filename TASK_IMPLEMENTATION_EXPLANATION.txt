@@ -225,7 +225,7 @@ In addition to the Java core, an educational Web Studio was developed in
 JavaScript, HTML5, Vanilla CSS, Three.js, and GSAP:
 - Interactive 20-Round Stepper: Visualizes column and diagonal quarter-round 
   transformations word-by-word with color-coded 512-bit state cells.
-- 3D Holographic ARX Reactor Forge: Features 3 concentric counter-rotating Torus 
+- 3D Holographic ARX State Visualizer: Features 3 concentric counter-rotating Torus 
   rings (Addition [Amber], Rotation [Violet], XOR [Cyan]) and a 16-word 3D orbital 
   convergence into the 4x4 matrix.
 - Google Lighthouse 13.4.1 Results: 100/100 Accessibility, 100/100 Best Practices, 
@@ -392,8 +392,8 @@ Launch the educational browser laboratory:
    npm install
    npm run dev
 
-Open http://localhost:5180 in any modern web browser to interact with:
-- The 3D ARX Reactor Forge (Three.js + GSAP).
+Open http://localhost:8439 in any modern web browser to interact with:
+- The 3D ARX State Visualizer (Three.js + GSAP).
 - The 20-Round interactive step-by-step debugger.
 - Live real-time RFC 8439 test vector probes.
 

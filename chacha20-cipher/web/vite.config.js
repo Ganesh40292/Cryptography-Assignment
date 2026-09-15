@@ -21,6 +21,8 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000
   },
   server: {
+    port: 8439,
+    strictPort: true,
     headers: {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
@@ -28,6 +30,8 @@ export default defineConfig({
     }
   },
   preview: {
+    port: 8439,
+    strictPort: true,
     headers: {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',

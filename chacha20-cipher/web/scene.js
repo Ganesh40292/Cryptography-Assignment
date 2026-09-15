@@ -49,7 +49,7 @@ export class CryptoScene3D {
         this.ambientField = null;
         this.hexSprites = [];
 
-        // ARX Cryptographic Reactor Forge Rings
+        // ARX Cryptographic Engine Rings
         this.arxGroup = null;
         this.arxRingAdd = null;
         this.arxRingRot = null;
@@ -448,7 +448,7 @@ export class CryptoScene3D {
         });
         this.entranceTimeline = tl;
 
-        // --- STAGE 1: ARX Quantum Core Ignition ---
+        // --- STAGE 1: ARX Cryptographic Core Initialization ---
         tl.to(introSeed, {
             opacity: 1,
             scale: 2.2,
