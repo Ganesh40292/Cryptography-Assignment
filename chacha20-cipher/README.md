@@ -37,7 +37,7 @@ Specific goals achieved:
 * **Avalanche & Diffusion Analyzer:** Measures single-bit input perturbations diffusing across all 20 rounds, featuring multi-trial statistical reporting (mean, min, max, std-dev).
 * **Academic Benchmark Suite:** Includes JVM JIT warmup, multi-payload measurements (64 B to 1 MB), and round-variant throughput comparisons.
 * **ASCII State Tracer:** Generates printable step-by-step 4x4 matrix execution traces.
-* **Interactive Web Studio:** Client-side web visualizer featuring 20-round animation stepper, live ARX formula displays, and instant RFC verification checks.
+* **Interactive Web Studio & Inspection Hub:** Client-side cryptographic laboratory featuring a 20-round animation stepper, on-demand inspection modules (512-bit state matrix, ARX permutation sandbox, 4/4 automated RFC probes, and formal KaTeX textbook mathematical formulations), responsive segmented navigation, and an academic footer.
 
 ---
 

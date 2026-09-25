@@ -5,6 +5,8 @@
  * comes from an actual computation.
  */
 import { ChaCha20Engine, CryptoUtils } from './chacha20.js';
+import 'katex/dist/katex.min.css';
+import katex from 'katex';
 
 /* ------------------------------- state ------------------------------- */
 const appState = {
@@ -76,7 +78,38 @@ const elements = {
     presetRfcSunscreen: document.getElementById('preset-rfc-sunscreen'),
     presetRfcBlock: document.getElementById('preset-rfc-block'),
     presetDemo: document.getElementById('preset-demo'),
-    presetClear: document.getElementById('preset-clear')
+    presetClear: document.getElementById('preset-clear'),
+
+    // Inspection modules
+    panelStateMatrix: document.getElementById('panel-state-matrix'),
+    panelQuarterRound: document.getElementById('panel-quarter-round'),
+    panelVerification: document.getElementById('panel-verification'),
+    panelFormulas: document.getElementById('panel-formulas'),
+    headerNavMatrix: document.getElementById('nav-btn-matrix'),
+    headerNavArx: document.getElementById('nav-btn-arx'),
+    headerNavVerification: document.getElementById('nav-btn-verification'),
+    headerNavFormulas: document.getElementById('nav-btn-formulas'),
+    hubNavMatrix: document.getElementById('hub-nav-matrix'),
+    hubNavArx: document.getElementById('hub-nav-arx'),
+    hubNavVerification: document.getElementById('hub-nav-verification'),
+    hubNavFormulas: document.getElementById('hub-nav-formulas'),
+    hubBtnAll: document.getElementById('hub-btn-all'),
+    hubBtnClose: document.getElementById('hub-btn-close'),
+    btnRerunAudit: document.getElementById('btn-rerun-audit'),
+
+    // QR Sandbox
+    qrInputA: document.getElementById('qr-input-a'),
+    qrInputB: document.getElementById('qr-input-b'),
+    qrInputC: document.getElementById('qr-input-c'),
+    qrInputD: document.getElementById('qr-input-d'),
+    qrOutA: document.getElementById('qr-out-a'),
+    qrOutB: document.getElementById('qr-out-b'),
+    qrOutC: document.getElementById('qr-out-c'),
+    qrOutD: document.getElementById('qr-out-d'),
+    qrStatusMsg: document.getElementById('qr-status-msg'),
+    btnQrRfcVector: document.getElementById('btn-qr-rfc-vector'),
+    btnQrRandom: document.getElementById('btn-qr-random'),
+    btnQrCompute: document.getElementById('btn-qr-compute')
 };
 
 /* --------------------------- tiny helpers --------------------------- */
@@ -568,22 +601,22 @@ async function onExecute() {
 
 /* ======================= state matrix visualizer ======================= */
 const CELL_META = [
-    { type: 'cell-constant', label: 'C0', desc: '"expa"' },
-    { type: 'cell-constant', label: 'C1', desc: '"nd 3"' },
-    { type: 'cell-constant', label: 'C2', desc: '"2-by"' },
-    { type: 'cell-constant', label: 'C3', desc: '"te k"' },
-    { type: 'cell-key', label: 'K0', desc: 'b0–3' },
-    { type: 'cell-key', label: 'K1', desc: 'b4–7' },
-    { type: 'cell-key', label: 'K2', desc: 'b8–11' },
-    { type: 'cell-key', label: 'K3', desc: 'b12–15' },
-    { type: 'cell-key', label: 'K4', desc: 'b16–19' },
-    { type: 'cell-key', label: 'K5', desc: 'b20–23' },
-    { type: 'cell-key', label: 'K6', desc: 'b24–27' },
-    { type: 'cell-key', label: 'K7', desc: 'b28–31' },
-    { type: 'cell-counter', label: 'CTR', desc: 'block idx' },
-    { type: 'cell-nonce', label: 'N0', desc: 'b0–3' },
-    { type: 'cell-nonce', label: 'N1', desc: 'b4–7' },
-    { type: 'cell-nonce', label: 'N2', desc: 'b8–11' }
+    { type: 'cell-constant', label: 'C0', coord: 'W0' },
+    { type: 'cell-constant', label: 'C1', coord: 'W1' },
+    { type: 'cell-constant', label: 'C2', coord: 'W2' },
+    { type: 'cell-constant', label: 'C3', coord: 'W3' },
+    { type: 'cell-key', label: 'K0', coord: 'W4' },
+    { type: 'cell-key', label: 'K1', coord: 'W5' },
+    { type: 'cell-key', label: 'K2', coord: 'W6' },
+    { type: 'cell-key', label: 'K3', coord: 'W7' },
+    { type: 'cell-key', label: 'K4', coord: 'W8' },
+    { type: 'cell-key', label: 'K5', coord: 'W9' },
+    { type: 'cell-key', label: 'K6', coord: 'W10' },
+    { type: 'cell-key', label: 'K7', coord: 'W11' },
+    { type: 'cell-counter', label: 'CTR', coord: 'W12' },
+    { type: 'cell-nonce', label: 'N0', coord: 'W13' },
+    { type: 'cell-nonce', label: 'N1', coord: 'W14' },
+    { type: 'cell-nonce', label: 'N2', coord: 'W15' }
 ];
 
 const COLUMN_QRS = 'QR(0,4,8,12) · QR(1,5,9,13) · QR(2,6,10,14) · QR(3,7,11,15)';
@@ -593,13 +626,13 @@ function resetMatrix() {
     appState.recordedSnapshots = [];
     appState.currentSnapshotIndex = 0;
     elements.matrixGrid.innerHTML = '';
-    elements.stepExplanation.textContent = 'Execute an operation to load the real 512-bit state into the visualizer.';
+    elements.stepExplanation.textContent = 'Execute an operation to load the 512-bit state matrix.';
     elements.roundReadout.textContent = 'ROUND 00 / 20';
     elements.roundSub.textContent = 'Awaiting state…';
     if (elements.roundProgressFill) elements.roundProgressFill.style.width = '0%';
     if (elements.roundProgressLabel) elements.roundProgressLabel.textContent = '0 / 20';
     if (elements.roundProgressbar) elements.roundProgressbar.setAttribute('aria-valuenow', '0');
-    elements.visualizerBlock.textContent = 'KEYSTREAM BLOCK —';
+    elements.visualizerBlock.textContent = 'BLOCK 1';
     elements.btnStepPrev.disabled = true;
     elements.btnStepNext.disabled = true;
     elements.btnStepPlay.disabled = true;
@@ -611,7 +644,7 @@ function renderVisualizer(result) {
     if (first && first.snapshots && first.snapshots.length > 0) {
         appState.recordedSnapshots = first.snapshots;
         elements.visualizerBlock.textContent =
-            `KEYSTREAM BLOCK 1 OF ${result.numBlocks} · COUNTER ${first.counter}`;
+            `BLOCK 1 / ${result.numBlocks} · CTR ${first.counter}`;
         elements.btnStepPlay.disabled = false;
         renderStateSnapshot(appState.recordedSnapshots[0]);
     } else {
@@ -620,8 +653,8 @@ function renderVisualizer(result) {
         const counter = parseInt(elements.inputCounter.value.trim() || '1', 10);
         renderStateMatrix(Array.from(ChaCha20Engine.createInitialState(keyBytes, counter, nonceBytes)));
         elements.roundReadout.textContent = 'ROUND 00 / 20';
-        elements.roundSub.textContent = 'Initial state (empty payload — no keystream block computed)';
-        elements.visualizerBlock.textContent = 'INITIAL STATE ONLY';
+        elements.roundSub.textContent = 'Initial 512-Bit Matrix State';
+        elements.visualizerBlock.textContent = 'INITIAL STATE';
     }
 }
 
@@ -629,29 +662,26 @@ function stepDescription(index, snap) {
     if (index === 0) {
         return {
             readout: 'ROUND 00 / 20',
-            sub: 'Initial state — constants · 8 key words · counter · nonce',
-            explain: 'State assembled per RFC 8439 §2.1: four constants ("expand 32-byte k"), eight key words (little-endian), 32-bit block counter, three nonce words.'
+            sub: 'Initial 512-Bit Matrix State',
+            explain: 'Initial State: 4 Constants · 8 Key Words · 1 Counter · 3 Nonce Words'
         };
     }
     if (index <= 20) {
         const isColumn = /column/i.test(snap.type);
         const roundNum = index;
         const n = Math.ceil(roundNum / 2);
-        const kind = isColumn ? `Column round ${n}` : `Diagonal round ${n}`;
         return {
             readout: `ROUND ${String(roundNum).padStart(2, '0')} / 20`,
-            sub: isColumn
-                ? `Column ${kind} — 4 quarter-rounds down the columns`
-                : `Diagonal ${kind} — 4 quarter-rounds along the diagonals`,
+            sub: isColumn ? `Column Round ${n} (Odd)` : `Diagonal Round ${n} (Even)`,
             explain: isColumn
-                ? `Column round: ${COLUMN_QRS} — each quarter-round applies ARX (add · xor · rotate) to its four words.`
-                : `Diagonal round: ${DIAGONAL_QRS} — the same ARX transform on the diagonal groupings.`
+                ? 'Column ARX Permutation: QR(0,4,8,12) · QR(1,5,9,13) · QR(2,6,10,14) · QR(3,7,11,15)'
+                : 'Diagonal ARX Permutation: QR(0,5,10,15) · QR(1,6,11,12) · QR(2,7,8,13) · QR(3,4,9,14)'
         };
     }
     return {
-        readout: '20 / 20 ROUNDS COMPLETE',
-        sub: 'Final state — feed-forward addition completed',
-        explain: 'Feed-forward: the permuted working state is added to the initial state (mod 2³²). The 16 result words are serialized little-endian into the 64-byte keystream block that is XORed with the payload.'
+        readout: '20 / 20 COMPLETE',
+        sub: 'Feed-Forward State Addition',
+        explain: 'Feed-Forward Complete: 64-Byte Keystream Block Generated'
     };
 }
 
@@ -676,29 +706,44 @@ function renderStateMatrix(words, prevWords) {
     const frag = document.createDocumentFragment();
     for (let i = 0; i < 16; i++) {
         const meta = CELL_META[i];
-        const valHex = '0x' + (words[i] >>> 0).toString(16).padStart(8, '0');
+        const rawHex = (words[i] >>> 0).toString(16).padStart(8, '0');
         const changed = prevWords ? (words[i] >>> 0) !== (prevWords[i] >>> 0) : false;
 
         const cell = document.createElement('div');
-        cell.className = 'matrix-cell ' + meta.type;
+        cell.className = `matrix-cell ${meta.type}${changed ? ' is-changed' : ''}`;
 
-        const header = document.createElement('div');
-        header.className = 'cell-header';
-        const type = document.createElement('span');
-        type.className = 'cell-type';
-        type.textContent = '[' + i + '] ' + meta.label;
-        const desc = document.createElement('span');
-        desc.className = 'cell-desc';
-        desc.textContent = meta.desc;
-        header.appendChild(type);
-        header.appendChild(desc);
+        // Top bar: Label pill on left, Register coordinate on right
+        const top = document.createElement('div');
+        top.className = 'cell-top';
 
-        const value = document.createElement('div');
-        value.className = 'cell-value' + (changed ? ' flash' : '');
-        value.textContent = valHex;
+        const tag = document.createElement('span');
+        tag.className = 'cell-tag';
+        tag.textContent = meta.label;
 
-        cell.appendChild(header);
-        cell.appendChild(value);
+        const coord = document.createElement('span');
+        coord.className = 'cell-coord';
+        coord.textContent = meta.coord;
+
+        top.appendChild(tag);
+        top.appendChild(coord);
+
+        // Value display: sleek 0x prefix + bold 8-hex word
+        const valContainer = document.createElement('div');
+        valContainer.className = 'cell-val' + (changed ? ' flash' : '');
+
+        const pfx = document.createElement('span');
+        pfx.className = 'val-pfx';
+        pfx.textContent = '0x';
+
+        const hexSpan = document.createElement('span');
+        hexSpan.className = 'val-hex';
+        hexSpan.textContent = rawHex;
+
+        valContainer.appendChild(pfx);
+        valContainer.appendChild(hexSpan);
+
+        cell.appendChild(top);
+        cell.appendChild(valContainer);
         frag.appendChild(cell);
     }
     elements.matrixGrid.innerHTML = '';
@@ -820,13 +865,124 @@ function runRfcChecks() {
         markRfcCheck('rfc-roundtrip', rtOk, rtOk ? 'PASS · XOR symmetric' : 'FAIL');
 
         // §2.1.1 — Quarter-Round ARX test vector
-        const qrState = [0x11111111, 0x01020304, 0x77777777, 0x01234567];
+        const qrState = [0x11111111, 0x01020304, 0x9b8d6f43, 0x01234567];
         ChaCha20Engine.quarterRound(qrState, 0, 1, 2, 3);
         const qrPassed = (qrState[0] === 0xea2a92f4 && qrState[1] === 0xcb1cf8ce && qrState[2] === 0x4581472e && qrState[3] === 0x5881c4bb);
         markRfcCheck('rfc-qr', qrPassed, qrPassed ? 'PASS · §2.1.1 ARX' : 'FAIL');
     } catch (err) {
         ['rfc-block', 'rfc-enc', 'rfc-roundtrip', 'rfc-qr'].forEach((id) => markRfcCheck(id, false, 'ERROR'));
     }
+}
+
+/* ===================== ARX Quarter-Round Interactive Sandbox ===================== */
+function parseWordInput(val, fallback = 0) {
+    if (!val) return fallback;
+    const clean = val.trim().replace(/^0x/i, '');
+    const num = parseInt(clean, 16);
+    return isNaN(num) ? fallback : (num >>> 0);
+}
+
+function formatWordHex(num) {
+    return '0x' + (num >>> 0).toString(16).padStart(8, '0');
+}
+
+function computeQrSandbox() {
+    if (!elements.qrInputA || !elements.qrInputB || !elements.qrInputC || !elements.qrInputD) return;
+    const a = parseWordInput(elements.qrInputA.value, 0x11111111);
+    const b = parseWordInput(elements.qrInputB.value, 0x01020304);
+    const c = parseWordInput(elements.qrInputC.value, 0x9b8d6f43);
+    const d = parseWordInput(elements.qrInputD.value, 0x01234567);
+
+    const state = [a, b, c, d];
+    ChaCha20Engine.quarterRound(state, 0, 1, 2, 3);
+
+    if (elements.qrOutA) elements.qrOutA.textContent = formatWordHex(state[0]);
+    if (elements.qrOutB) elements.qrOutB.textContent = formatWordHex(state[1]);
+    if (elements.qrOutC) elements.qrOutC.textContent = formatWordHex(state[2]);
+    if (elements.qrOutD) elements.qrOutD.textContent = formatWordHex(state[3]);
+
+    const isRfcMatch = (
+        state[0] === 0xea2a92f4 &&
+        state[1] === 0xcb1cf8ce &&
+        state[2] === 0x4581472e &&
+        state[3] === 0x5881c4bb
+    );
+
+    if (elements.qrStatusMsg) {
+        if (isRfcMatch) {
+            elements.qrStatusMsg.innerHTML = `
+                <span class="status-badge-ok">✓ RFC 8439 §2.1.1 CONFORMANCE VERIFIED</span>
+                <span class="status-sub">Input matches official test vector · Output registers verified exact</span>
+            `;
+        } else {
+            elements.qrStatusMsg.innerHTML = `
+                <span class="status-badge-ok" style="color:#7dd3fc;">✓ ARX COMPUTATION COMPLETE</span>
+                <span class="status-sub">Computed 4 modular additions, 4 bitwise XORs, 4 cyclic left rotations</span>
+            `;
+        }
+    }
+}
+
+function loadQrRfcVector() {
+    if (elements.qrInputA) elements.qrInputA.value = '0x11111111';
+    if (elements.qrInputB) elements.qrInputB.value = '0x01020304';
+    if (elements.qrInputC) elements.qrInputC.value = '0x9b8d6f43';
+    if (elements.qrInputD) elements.qrInputD.value = '0x01234567';
+    computeQrSandbox();
+}
+
+function loadQrRandomVector() {
+    const rndA = (Math.random() * 0xffffffff) >>> 0;
+    const rndB = (Math.random() * 0xffffffff) >>> 0;
+    const rndC = (Math.random() * 0xffffffff) >>> 0;
+    const rndD = (Math.random() * 0xffffffff) >>> 0;
+    if (elements.qrInputA) elements.qrInputA.value = formatWordHex(rndA);
+    if (elements.qrInputB) elements.qrInputB.value = formatWordHex(rndB);
+    if (elements.qrInputC) elements.qrInputC.value = formatWordHex(rndC);
+    if (elements.qrInputD) elements.qrInputD.value = formatWordHex(rndD);
+    computeQrSandbox();
+}
+
+/* ===================== Textbook KaTeX Math Rendering ===================== */
+function renderMathFormulas() {
+    // 1. Display equations (KaTeX math blocks)
+    const mathContainers = document.querySelectorAll('.katex-eq');
+    mathContainers.forEach((container) => {
+        if (!container.dataset.tex || container.classList.contains('katex-rendered')) return;
+        try {
+            katex.render(container.dataset.tex, container, {
+                displayMode: container.dataset.inline !== 'true',
+                throwOnError: false,
+                output: 'htmlAndMathml'
+            });
+            container.classList.add('katex-rendered');
+        } catch (e) {
+            console.warn('[KaTeX] render error:', e);
+        }
+    });
+
+    // 2. Inline math expressions ($...$) inside textbook description paragraphs and parameter items
+    const inlineSelectors = '.textbook-definition-box p, .textbook-intro-ribbon p, .param-meaning, .param-symbol';
+    const inlineContainers = document.querySelectorAll(inlineSelectors);
+    inlineContainers.forEach((el) => {
+        if (el.classList.contains('katex-inline-processed')) return;
+        const text = el.innerHTML;
+        if (text.includes('$')) {
+            const replaced = text.replace(/\$([^$]+)\$/g, (match, tex) => {
+                try {
+                    return katex.renderToString(tex, {
+                        displayMode: false,
+                        throwOnError: false,
+                        output: 'htmlAndMathml'
+                    });
+                } catch (err) {
+                    return match;
+                }
+            });
+            el.innerHTML = replaced;
+            el.classList.add('katex-inline-processed');
+        }
+    });
 }
 
 /* ===================== ambient background canvas ===================== */
@@ -1029,6 +1185,64 @@ function bindEvents() {
     elements.presetDemo.addEventListener('click', loadDemoPreset);
     elements.presetClear.addEventListener('click', clearInputs);
 
+    // Inspection Module navigation and controls
+    if (elements.headerNavMatrix) elements.headerNavMatrix.addEventListener('click', () => setModuleVisibility('matrix', null));
+    if (elements.headerNavArx) elements.headerNavArx.addEventListener('click', () => setModuleVisibility('arx', null));
+    if (elements.headerNavVerification) elements.headerNavVerification.addEventListener('click', () => setModuleVisibility('verification', null));
+    if (elements.headerNavFormulas) elements.headerNavFormulas.addEventListener('click', () => setModuleVisibility('formulas', null));
+
+    if (elements.hubNavMatrix) elements.hubNavMatrix.addEventListener('click', () => setModuleVisibility('matrix', null));
+    if (elements.hubNavArx) elements.hubNavArx.addEventListener('click', () => setModuleVisibility('arx', null));
+    if (elements.hubNavVerification) elements.hubNavVerification.addEventListener('click', () => setModuleVisibility('verification', null));
+    if (elements.hubNavFormulas) elements.hubNavFormulas.addEventListener('click', () => setModuleVisibility('formulas', null));
+
+    if (elements.hubBtnAll) elements.hubBtnAll.addEventListener('click', showAllModules);
+    if (elements.hubBtnClose) elements.hubBtnClose.addEventListener('click', hideAllModules);
+
+    if (elements.btnRerunAudit) {
+        elements.btnRerunAudit.addEventListener('click', () => {
+            const icon = elements.btnRerunAudit.querySelector('.audit-icon');
+            if (icon) icon.style.transform = 'rotate(360deg)';
+            runRfcChecks();
+            setTimeout(() => { if (icon) icon.style.transform = ''; }, 450);
+        });
+    }
+
+    if (elements.btnQrCompute) elements.btnQrCompute.addEventListener('click', computeQrSandbox);
+    if (elements.btnQrRfcVector) elements.btnQrRfcVector.addEventListener('click', loadQrRfcVector);
+    if (elements.btnQrRandom) elements.btnQrRandom.addEventListener('click', loadQrRandomVector);
+    [elements.qrInputA, elements.qrInputB, elements.qrInputC, elements.qrInputD].forEach((inp) => {
+        if (inp) {
+            inp.addEventListener('input', computeQrSandbox);
+            inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') computeQrSandbox(); });
+        }
+    });
+
+    document.querySelectorAll('.panel-close-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            if (targetId === 'panel-state-matrix') setModuleVisibility('matrix', false);
+            else if (targetId === 'panel-quarter-round') setModuleVisibility('arx', false);
+            else if (targetId === 'panel-verification') setModuleVisibility('verification', false);
+            else if (targetId === 'panel-formulas') setModuleVisibility('formulas', false);
+        });
+    });
+
+    // Footer navigation links
+    document.querySelectorAll('.footer-link-btn[data-target-module]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target-module');
+            setModuleVisibility(target, true, true);
+        });
+    });
+
+    const backToTopBtn = document.getElementById('btn-footer-back-to-top');
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
     const replayBtn = document.getElementById('btn-replay-intro');
     if (replayBtn) {
         replayBtn.addEventListener('click', async () => {
@@ -1049,6 +1263,128 @@ function bindEvents() {
             }
         });
     }
+}
+
+/* ==================== Cryptographic Inspection Modules ==================== */
+function updateModuleLayoutSpans() {
+    if (!elements.panelQuarterRound || !elements.panelVerification) return;
+    const arxVisible = !elements.panelQuarterRound.classList.contains('is-hidden');
+    const verifyVisible = !elements.panelVerification.classList.contains('is-hidden');
+
+    if (arxVisible && !verifyVisible) {
+        elements.panelQuarterRound.classList.add('span-full');
+    } else {
+        elements.panelQuarterRound.classList.remove('span-full');
+    }
+
+    if (verifyVisible && !arxVisible) {
+        elements.panelVerification.classList.add('span-full');
+    } else {
+        elements.panelVerification.classList.remove('span-full');
+    }
+}
+
+function setModuleVisibility(moduleName, show = null, shouldScroll = true) {
+    let panel, headerBtn, hubCard, defaultText, activeText;
+
+    if (moduleName === 'matrix') {
+        panel = elements.panelStateMatrix;
+        headerBtn = elements.headerNavMatrix;
+        hubCard = elements.hubNavMatrix;
+        defaultText = 'Click to Show';
+        activeText = 'Active · Click to Hide';
+    } else if (moduleName === 'arx') {
+        panel = elements.panelQuarterRound;
+        headerBtn = elements.headerNavArx;
+        hubCard = elements.hubNavArx;
+        defaultText = 'Click to Show';
+        activeText = 'Active · Click to Hide';
+    } else if (moduleName === 'verification') {
+        panel = elements.panelVerification;
+        headerBtn = elements.headerNavVerification;
+        hubCard = elements.hubNavVerification;
+        defaultText = 'Click to Show';
+        activeText = 'Active · Click to Hide';
+    } else if (moduleName === 'formulas') {
+        panel = elements.panelFormulas;
+        headerBtn = elements.headerNavFormulas;
+        hubCard = elements.hubNavFormulas;
+        defaultText = 'Click to Show';
+        activeText = 'Active · Click to Hide';
+    }
+
+    if (!panel) return;
+
+    const isCurrentlyHidden = panel.classList.contains('is-hidden');
+    const targetShow = show !== null ? show : isCurrentlyHidden;
+
+    if (targetShow) {
+        panel.classList.remove('is-hidden');
+        if (headerBtn) {
+            headerBtn.classList.add('is-active');
+            headerBtn.setAttribute('aria-expanded', 'true');
+        }
+        if (hubCard) {
+            hubCard.classList.add('is-active');
+            hubCard.setAttribute('aria-selected', 'true');
+            const statusText = hubCard.querySelector('.status-text');
+            if (statusText) statusText.textContent = activeText;
+        }
+        updateModuleLayoutSpans();
+
+        if (moduleName === 'matrix') {
+            const snaps = appState.recordedSnapshots;
+            if (snaps && snaps.length > 0) {
+                renderStateSnapshot(snaps[appState.currentSnapshotIndex]);
+            }
+        } else if (moduleName === 'verification') {
+            runRfcChecks();
+        } else if (moduleName === 'formulas') {
+            renderMathFormulas();
+        } else if (moduleName === 'arx') {
+            computeQrSandbox();
+        }
+
+        if (shouldScroll) {
+            setTimeout(() => {
+                panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 60);
+        }
+    } else {
+        panel.classList.add('is-hidden');
+        if (headerBtn) {
+            headerBtn.classList.remove('is-active');
+            headerBtn.setAttribute('aria-expanded', 'false');
+        }
+        if (hubCard) {
+            hubCard.classList.remove('is-active');
+            hubCard.setAttribute('aria-selected', 'false');
+            const statusText = hubCard.querySelector('.status-text');
+            if (statusText) statusText.textContent = defaultText;
+        }
+        updateModuleLayoutSpans();
+    }
+}
+
+function showAllModules() {
+    setModuleVisibility('matrix', true, false);
+    setModuleVisibility('arx', true, false);
+    setModuleVisibility('verification', true, false);
+    setModuleVisibility('formulas', true, false);
+    renderMathFormulas();
+    computeQrSandbox();
+    setTimeout(() => {
+        if (elements.panelStateMatrix) {
+            elements.panelStateMatrix.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 80);
+}
+
+function hideAllModules() {
+    setModuleVisibility('matrix', false, false);
+    setModuleVisibility('arx', false, false);
+    setModuleVisibility('verification', false, false);
+    setModuleVisibility('formulas', false, false);
 }
 
 /* ============================ 3D Scene Initialization ============================ */
@@ -1081,6 +1417,8 @@ document.addEventListener('DOMContentLoaded', () => {
     resetOutputs();
     resetMatrix();
     runRfcChecks();
+    renderMathFormulas();
+    computeQrSandbox();
     loadDemoPreset();      // loads real parameters + computes a real result
     init3DScene();         // automatically runs 3D entrance animation on load/refresh
     initNeonCursor();
