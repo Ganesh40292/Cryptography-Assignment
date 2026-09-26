@@ -8,10 +8,18 @@ target/
 *.tar.gz
 *.rar
 
-# Node / Vite Web Artifacts
+# Node / Vite Web Artifacts & Cloud Deployments
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 .vite/
+**/.vite/
+.vercel/
+**/.vercel/
+.cache/
+**/.cache/
+*.log
 
 # NetBeans specific
 nbproject/private/

@@ -12,12 +12,13 @@ Vercel will automatically detect `vercel.json` and build the web studio without 
 1. Go to [https://vercel.com](https://vercel.com) and log in with your GitHub account.
 2. Click **"Add New..."** → **"Project"**.
 3. Select your repository: `Ganesh40292/Cryptography-Assignment`.
-4. Vercel will automatically read `vercel.json`:
-   - **Framework Preset**: Vite
-   - **Build Command**: `cd chacha20-cipher/web && npm install && npm run build`
-   - **Output Directory**: `chacha20-cipher/web/dist`
+4. Leave all settings at their defaults (Vercel automatically detects [`vercel.json`](vercel.json)):
+   - **Root Directory**: `./` (Default)
+   - **Build Command**: Auto-detected via `vercel.json` (`npm run build` -> `node build.js`)
+   - **Output Directory**: Auto-detected via `vercel.json` (`chacha20-cipher/web/dist`)
 5. Click **"Deploy"**.
-6. In ~45 seconds, your application will be live at `https://your-project.vercel.app`!
+6. The universal `build.js` engine automatically compiles KaTeX, Three.js, and GSAP assets, syncing production bundles in ~20 seconds.
+7. Your application will be live at `https://your-project.vercel.app`!
 
 ---
 
