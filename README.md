@@ -6,14 +6,14 @@
 [![Browser Probes](https://img.shields.io/badge/Probes-4%20%2F%204%20PASS%20(RFC%208439)-emerald.svg)](#-implementation-verification--automated-probes-44-pass)
 [![Math Engine](https://img.shields.io/badge/Math-KaTeX%20Textbook%20LaTeX-9cf.svg)](https://katex.org/)
 [![Lighthouse](https://img.shields.io/badge/Lighthouse-100%20%7C%20100%20%7C%20100%20%7C%20100-success.svg)](#-lighthouse-1341-audit-results)
-[![Vercel](https://img.shields.io/badge/Deploy-Live%20on%20Vercel-success.svg?logo=vercel)](https://cryptography-assignment-phi.vercel.app/)
+[![Vercel](https://img.shields.io/badge/Deploy-Live%20on%20Vercel-success.svg?logo=vercel)](https://cryptography-assignment.vercel.app/)
 [![License: Academic](https://img.shields.io/badge/License-Academic%20MIT-lightgrey.svg)](LICENSE)
 
 ---
 
 ## 🌐 Live Deployment & Interactive Studio
 
-🚀 **Live URL:** [https://cryptography-assignment-phi.vercel.app/](https://cryptography-assignment-phi.vercel.app/)
+🚀 **Live URL:** [https://cryptography-assignment.vercel.app/](https://cryptography-assignment.vercel.app/)
 
 Access the live, client-side 3D ChaCha20 virtual laboratory with interactive ARX state matrix visualization, 20-round stepper, textbook mathematical formulas, and instant RFC 8439 verification without any local installation.
 
